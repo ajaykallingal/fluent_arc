@@ -1,0 +1,53 @@
+{
+  "feature": "offline-pronunciation-scoring",
+  "actors": [
+    "Learner (signed-in or guest)",
+    "Pronunciation feature module (existing UI surface)",
+    "Offline scoring engine (new on-device component)",
+    "Configuration / .env (selects offline vs remote scoring)"
+  ],
+  "requirements": [
+    "Provide a PronunciationScorer interface in lib/features/pronunciation/domain/ that accepts a recorded audio buffer (PCM or file path) and the target phrase text, and returns a PronunciationScore.",
+    "Provide a PronunciationScore value object containing overallScore, accuracyScore, fluencyScore, completenessScore (each 0-100), phonemeBreakdown (list of {phoneme, score}), feedback (short string), and engine (\"offline-local\" | \"remote\").",
+    "Ship a concrete OfflinePronunciationScorer that performs scoring entirely on-device (no HTTP, no AI provider call).",
+    "Gate selection between offline and remote scoring behind a single provider switch in lib/core/services/ai/ or sibling; when offline is selected it MUST work offline with GEMINI_API_KEY empty.",
+    "Existing pronunciation view consumes the result via AsyncValue<PronunciationScore>; loading/error/empty states follow knowledge/feature_patterns/.",
+    "Offline scorer is replaceable without changing call sites — interface-driven, views do not import concrete classes.",
+    "Persist each score attempt to local SQLite so progress charts/history can render it later.",
+    "Expose a Riverpod provider that returns the active PronunciationScorer for current configuration.",
+    "Do not require new microphone permission changes — feature assumes the existing recorder already captured audio.",
+    "Log a single debug-level line per attempt including duration, engine id, and overall score — never log raw audio bytes or transcripts."
+  ],
+  "edge_cases": [
+    "Empty / zero-length audio buffer — error state, do not throw.",
+    "Audio exceeds configured cap (default 30s) — error state with 'clip too long'.",
+    "Audio sample rate or channel count differs from scorer expectation — scorer normalizes internally and returns a result; never silently mis-score.",
+    "Empty reference text — error state; do not score.",
+    "Reference text contains unsupported characters/phonemes — fall back to a coarse phoneme-agnostic score with feedback note.",
+    "Two rapid successive attempts — run independently; no cross-attempt state leaks.",
+    "App killed mid-scoring — next launch shows no half-finished attempt; partial DB rows rolled back or marked failed.",
+    "SQLite write fails after successful score — surface error but still show the score (graceful degradation).",
+    "Backend later online with remote preferred — switch routes to remote scorer without view changes.",
+    "User denies mic permission upstream — feature not invoked by this layer; scorer must not re-prompt."
+  ],
+  "acceptance_criteria": [
+    "With offline scorer enabled and device offline, submitting an attempt returns a PronunciationScore with engine == 'offline-local' within 2s p50 for clips <=5s.",
+    "With GEMINI_API_KEY empty, the offline scorer is selected (not remote) and returns a score.",
+    "A 1s silent clip returns AsyncError with a user-readable message; no uncaught exception reaches the widget tree.",
+    "A successful score writes a row to local SQLite with target phrase, engine id, overall score, and timestamp.",
+    "Empty reference text returns AsyncError('Reference text required') without performing audio analysis.",
+    "A new scorer implementation works with the existing pronunciation view without view-level changes.",
+    "Same audio + reference run twice produces identical overallScore, accuracyScore, fluencyScore, completenessScore.",
+    "Clip longer than configured cap returns AsyncError('Clip too long') and writes no storage row.",
+    "If SQLite write fails after a valid score, the view still renders the score and a non-blocking warning is surfaced.",
+    "Log line per run contains duration, engine id, overall score — does NOT contain raw audio bytes or transcript content."
+  ],
+  "open_questions": [
+    "Which on-device scoring algorithm is acceptable for v1 (pure-Dart heuristic, DTW, on-device phoneme model, third-party SDK)? Single biggest scope driver.",
+    "Accuracy target: aligned with eventual remote scorer, or explicitly low-fidelity placeholder?",
+    "Audio input contract: does the existing recorder hand us a file path, Uint8List, or streamed PCM?",
+    "Bundle size: OK to include a phoneme-model asset (~MB), or must v1 ship with zero new assets?",
+    "Remote vs offline selection policy when both available: user setting, env flag, or always-remote-when-available?",
+    "Score history retention: do existing pronunciation rows distinguish engine, and who owns that schema migration?"
+  ]
+}

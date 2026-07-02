@@ -1,0 +1,11 @@
+feature: ""
+source_requirement_file: ""
+refine_spec_findings_file: ""
+tasks:
+  - id: ""
+    description: ""
+    layer: ""        # domain | data | presentation | test | localization
+    depends_on: []
+  # repeat per atomic task — see agents/planner-agent.md for granularity rules
+risks: []
+estimated_complexity: ""   # low | medium | high

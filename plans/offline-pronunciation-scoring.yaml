@@ -1,0 +1,222 @@
+feature: offline-pronunciation-scoring
+source_requirement_file: features/offline-pronunciation-scoring/requirements.md
+refine_spec_findings_file: features/offline-pronunciation-scoring/refine_spec_findings.md
+tasks:
+  - id: T01
+    description: Extend `PronunciationAnalysisResult` (in
+      `lib/features/pronunciation/domain/services/pronunciation_analyzer.dart`)
+      with optional `accuracyScore` (int, default 100), `fluencyScore` (int,
+      default 100), `completenessScore` (int, default 100), and `engine`
+      (String, default 'remote'). Update `PronunciationWord` only if
+      needed (per spec, `phonemeBreakdown` is folded into the existing
+      `words` list — no new field). Keep `toJson()` backwards-compatible
+      (new fields optional in the map).
+    layer: domain
+    depends_on: []
+
+  - id: T02
+    description: Create
+      `lib/features/pronunciation/domain/models/pronunciation_attempt.dart`
+      defining `PronunciationAttempt` (id: int?, targetPhrase: String,
+      spokenText: String, overallScore: int, accuracyScore: int,
+      fluencyScore: int, completenessScore: int, engine: String,
+      attemptedAt: DateTime). Plain Dart; no Flutter imports.
+      Implement `toMap()` / `fromMap()` for SQLite serialization.
+    layer: domain
+    depends_on: []
+
+  - id: T03
+    description: Create
+      `lib/features/pronunciation/domain/repositories/pronunciation_attempt_repository.dart`
+      defining `abstract class PronunciationAttemptRepository` with
+      `Future<void> recordAttempt(PronunciationAttempt attempt)` and
+      `Future<List<PronunciationAttempt>> recentAttempts({int limit})`.
+      No Flutter imports.
+    layer: domain
+    depends_on: [T02]
+
+  - id: T04
+    description: Bump `DatabaseHelper` schema version from 1 to 2 in
+      `lib/core/services/storage/database_helper.dart`. Add
+      `onUpgrade(db, oldVersion, newVersion)` that creates the new
+      `pronunciation_attempts` table when `oldVersion < 2`. Update
+      `onCreate` to create BOTH `vocabulary` and `pronunciation_attempts`
+      so fresh installs get the full schema. Columns: `id INTEGER
+      PRIMARY KEY AUTOINCREMENT`, `targetPhrase TEXT NOT NULL`,
+      `spokenText TEXT NOT NULL`, `overallScore INTEGER NOT NULL`,
+      `accuracyScore INTEGER NOT NULL`, `fluencyScore INTEGER NOT NULL`,
+      `completenessScore INTEGER NOT NULL`, `engine TEXT NOT NULL`,
+      `attemptedAt TEXT NOT NULL`.
+    layer: data
+    depends_on: []
+
+  - id: T05
+    description: Create
+      `lib/features/pronunciation/data/repositories/sqlite_pronunciation_attempt_repository.dart`
+      implementing `PronunciationAttemptRepository` against the new
+      `pronunciation_attempts` table via `DatabaseHelper`. Use the
+      `PronunciationAttempt.fromMap` / `toMap` from T02. Let exceptions
+      propagate per `knowledge/coding_standards.md` error handling
+      rule.
+    layer: data
+    depends_on: [T03, T04]
+
+  - id: T06
+    description: Create
+      `lib/features/pronunciation/data/services/offline_pronunciation_analyzer.dart`
+      implementing `PronunciationAnalyzer`. Deterministic on-device
+      scorer for the text-pair shape. Algorithm: Levenshtein-based
+      word-similarity score normalized to 0-100 (confirmed by human
+      2026-06-26, Open Question #1b). `completenessScore` derived from
+      the ratio of spoken words to target words; `accuracyScore`
+      from edit distance; `fluencyScore` from word-length variance
+      (placeholder heuristic). Use `Random(seed)` so identical
+      inputs produce identical scores (satisfies AC #6). Set
+      `engine` to `'offline-local'`. Add `debugPrint` log line:
+      duration, engine id, overall score.
+      Follow-up calibration task (not part of this plan): once the
+      remote scorer is wired, tune the Levenshtein weights so the
+      offline engine aligns with the remote engine on a held-out
+      evaluation set. This is a parameter change, not a structural
+      one, and the engine id (`'offline-local'`) makes the lineage
+      visible per attempt.
+    layer: data
+    depends_on: [T01]
+
+  - id: T07
+    description: Update `MockPronunciationAnalyzer` in
+      `lib/features/pronunciation/data/services/mock_pronunciation_analyzer.dart`
+      so its returned `PronunciationAnalysisResult` populates the new
+      fields (`accuracyScore`, `fluencyScore`, `completenessScore`,
+      `engine: 'remote'`). Keep existing behavior otherwise; this is
+      so the score card does not render `null` (per refine-spec
+      finding M1).
+    layer: data
+    depends_on: [T01]
+
+  - id: T08
+    description: Update `analyzerProvider` in
+      `lib/features/pronunciation/presentation/view_models/accent_coach_view_model.dart`
+      to switch between `OfflinePronunciationAnalyzer` and
+      `MockPronunciationAnalyzer` based on `GEMINI_API_KEY` (read from
+      `aiApiKeyProvider` in `core/services/ai/ai_provider.dart`). Empty
+      key or absent config → `OfflinePronunciationAnalyzer`. Add a new
+      Riverpod provider `pronunciationAttemptRepositoryProvider` in
+      the same file returning the repository from T05. Keep existing
+      imports and provider names; do not introduce a parallel
+      `scorerProvider`.
+    layer: presentation
+    depends_on: [T05, T06, T07]
+
+  - id: T09
+    description: Update `AccentCoachNotifier.stopRecordingAndAnalyze`
+      in `accent_coach_view_model.dart` so that, on a successful
+      analysis, it calls `ref.read(pronunciationAttemptRepositoryProvider)
+      .recordAttempt(...)` with the new `PronunciationAttempt`. Wrap
+      the DB write in a try/catch — if it fails, set
+      `errorMessage` to a non-blocking storage message but still
+      expose the score in `result`. (Per AC #7.) Preserve the
+      existing `recordSpeakingSession` call.
+    layer: presentation
+    depends_on: [T08]
+
+  - id: T10
+    description: Verify `AccentCoachView` in
+      `lib/features/pronunciation/presentation/views/accent_coach_view.dart`
+      renders the new fields without modification. If
+      `ScoreCard` does not surface a textual descriptor
+      ("Excellent" / "Good" / "Needs work"), add the descriptor to
+      `lib/core/widgets/score_card.dart` based on the score band
+      (>=85 / >=70 / else). Per Non-Functional requirement
+      "Accessibility".
+    layer: presentation
+    depends_on: [T01, T09]
+
+  - id: T11
+    description: Add unit tests in `test/features/pronunciation/` (mirror
+      `lib/` structure or follow existing `test/view_models/` convention
+      — verify which convention is in use before writing):
+      - `offline_pronunciation_analyzer_test.dart`: deterministic
+        scoring (same input → same score), engine tag == 'offline-local',
+        empty spoken text returns an error result.
+      - `sqlite_pronunciation_attempt_repository_test.dart`: insert +
+        read roundtrip; uses an in-memory sqflite database if available
+        in tests; otherwise mock `DatabaseHelper`.
+    layer: test
+    depends_on: [T05, T06]
+
+  - id: T12
+    description: Add a test for `accent_coach_view_model.dart` asserting:
+      - With `aiApiKeyProvider` empty, `analyzerProvider` returns
+        `OfflinePronunciationAnalyzer`.
+      - Successful analysis writes one row to the repository (mock the
+        repository; verify the call).
+      - Failing repository does NOT clobber `result`; only sets
+        `errorMessage`.
+    layer: test
+    depends_on: [T09]
+
+  - id: T13
+    description: Add a regression test for the SQLite schema bump:
+      - Create a v1 schema database (with `vocabulary` only) using
+        raw sqflite; run `DatabaseHelper.onUpgrade` (or simulate the
+        app start); assert that `pronunciation_attempts` exists and
+        `vocabulary` rows are intact.
+      - Create a fresh v2 install; assert both tables exist.
+    layer: test
+    depends_on: [T04]
+
+  - id: T14
+    description: Run `flutter analyze` and `flutter test`; both must pass
+      before this feature is considered done (per `CLAUDE.md` Critical
+      rules). If `flutter analyze` flags any new lint, fix the
+      underlying issue — do not introduce `// ignore:` comments
+      without a written reason.
+    layer: test
+    depends_on: [T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T13]
+
+risks:
+  - All open questions resolved by human on 2026-06-26. Plan is
+    implementable as-is.
+  - The `analyzerProvider` change (T08) is the single highest-blast-
+    radius task: it alters how every pronunciation attempt is scored
+    based on whether `GEMINI_API_KEY` is empty. With Open Question
+    #4 and #7 both confirmed (offline wins on empty key; flip
+    automatically, no env flag), the flip happens silently and is
+    hard to undo in production once a learner has an offline-scored
+    history. Mitigation: T08 must be committed on its own with a
+    clear changelog note; consider gating the flip behind a build
+    flag in CI so an inadvertent empty-`GEMINI_API_KEY` deploy does
+    not silently switch a remote-scoring build to offline. (This
+    mitigation is a recommendation, not a hard requirement of the
+    plan.)
+  - SQLite migration (T04): the schema bump to v2 affects every
+    device on upgrade. If the `onUpgrade` is buggy, existing
+    `vocabulary` data could be lost. Mitigation: explicit
+    integration test (T13) that simulates the v1→v2 upgrade on a
+    fixture DB.
+  - `MockPronunciationAnalyzer` (T07) is a mock and may not stay in
+    the codebase forever. The plan keeps it for now (preserves
+    backwards-compatible behavior when `GEMINI_API_KEY` is set) but
+    the human should confirm whether the mock becomes obsolete once
+    the offline path is the default.
+  - The existing `pronunciation` feature has poor test coverage
+    (per `find lib/test -name '*pronunciation*'` exploration in the
+    pre-plan scout). T11-T13 add the first tests for this feature;
+    they are unlikely to find pre-existing bugs but should not be
+    skipped.
+  - Riverpod version mismatch risk: `pubspec.yaml` pins
+    `flutter_riverpod: ^3.3.2`. T08 / T12 must verify `Notifier` /
+    `NotifierProvider` semantics used in `accent_coach_view_model.dart`
+    are still supported; the project's `knowledge/architecture.md`
+    already flags uncertainty about whether the project uses
+    `Notifier` or `ChangeNotifier`. Use whatever the existing file
+    uses, do not migrate it.
+  - The architectural doc claims view models should expose
+    `AsyncValue<PronunciationScore>`, but the existing state object
+    uses sealed-style flags. The plan deliberately does NOT refactor
+    to `AsyncValue` (per refine-spec finding S2 and FR-5). If a
+    follow-up decides to do that refactor, the persistence write
+    sequencing in T09 will need rework.
+
+estimated_complexity: medium
