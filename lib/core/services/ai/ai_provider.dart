@@ -26,9 +26,9 @@ final ollamaBaseUrlProvider = Provider<String>((ref) {
 
 final ollamaModelProvider = Provider<String>((ref) {
   try {
-    return dotenv.env['OLLAMA_MODEL'] ?? 'gemma2:2b';
+    return dotenv.env['OLLAMA_MODEL'] ?? 'qwen3:4b';
   } catch (_) {
-    return 'gemma2:2b';
+    return 'qwen3:4b';
   }
 });
 
