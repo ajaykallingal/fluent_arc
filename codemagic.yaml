@@ -45,6 +45,10 @@ workflows:
         script: |
           flutter pub get
 
+      - name: Create mock .env file
+        script: |
+          cp .env.example .env
+
       - name: Check code formatting
         script: |
           # "dart format" checks if your code formatting complies with Dart conventions.

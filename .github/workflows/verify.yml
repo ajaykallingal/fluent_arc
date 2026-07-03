@@ -44,7 +44,12 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      # Step 5: Verify that the code formatting matches Dart standards
+      # Step 5: Create dummy .env file to satisfy the pubspec.yaml assets check
+      # Since .env is ignored in Git but declared as a Flutter asset, we create a dummy file from the example template.
+      - name: Create Mock .env File
+        run: cp .env.example .env
+
+      # Step 6: Verify that the code formatting matches Dart standards
       - name: Check Code Formatting
         # If any files are unformatted, this command exits with code 1 and stops the pipeline
         run: dart format --output=none --set-exit-if-changed .
