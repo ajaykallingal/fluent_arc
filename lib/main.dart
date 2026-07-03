@@ -25,7 +25,10 @@ void main() async {
         supabaseAnonKey != null &&
         supabaseUrl.isNotEmpty &&
         supabaseAnonKey.isNotEmpty) {
-      await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
+      await Supabase.initialize(
+        url: supabaseUrl,
+        publishableKey: supabaseAnonKey,
+      );
       isBackendInitialized = true;
     } else {
       debugPrint('Supabase credentials missing from .env');
