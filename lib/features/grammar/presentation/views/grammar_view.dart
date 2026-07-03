@@ -26,7 +26,9 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    ref.read(grammarNotifierProvider.notifier).checkGrammar(_inputController.text);
+    ref
+        .read(grammarNotifierProvider.notifier)
+        .checkGrammar(_inputController.text);
   }
 
   @override
@@ -35,9 +37,7 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
     final grammarState = ref.watch(grammarNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Grammar Coach'),
-      ),
+      appBar: AppBar(title: const Text('Grammar Coach')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -103,7 +103,9 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       grammarState.errorMessage!,
-                      style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                      style: TextStyle(
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
                     ),
                   ),
                 ),
@@ -118,7 +120,7 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Score card
                 ScoreCard(
                   title: 'Grammar Rating',
@@ -126,8 +128,8 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
                   description: grammarState.report!.score >= 90
                       ? 'Excellent accuracy! Keep it up.'
                       : grammarState.report!.score >= 70
-                          ? 'Decent phrasing, but minor errors detected.'
-                          : 'Major corrections suggested to improve clarity.',
+                      ? 'Decent phrasing, but minor errors detected.'
+                      : 'Major corrections suggested to improve clarity.',
                 ),
                 const SizedBox(height: 16),
 
@@ -181,8 +183,10 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lightbulb_outline_rounded,
-                                color: theme.colorScheme.primary),
+                            Icon(
+                              Icons.lightbulb_outline_rounded,
+                              color: theme.colorScheme.primary,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Coach Explanation',
@@ -195,7 +199,9 @@ class _GrammarViewState extends ConsumerState<GrammarView> {
                         const SizedBox(height: 12),
                         Text(
                           grammarState.report!.explanation,
-                          style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            height: 1.4,
+                          ),
                         ),
                       ],
                     ),

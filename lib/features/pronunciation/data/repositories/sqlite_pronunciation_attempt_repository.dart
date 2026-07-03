@@ -13,7 +13,7 @@ class SqlitePronunciationAttemptRepository
   final DatabaseHelper _helper;
 
   SqlitePronunciationAttemptRepository({DatabaseHelper? helper})
-      : _helper = helper ?? DatabaseHelper.instance;
+    : _helper = helper ?? DatabaseHelper.instance;
 
   @override
   Future<void> recordAttempt(PronunciationAttempt attempt) async {

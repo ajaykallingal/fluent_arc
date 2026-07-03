@@ -2,7 +2,8 @@ import 'dart:async';
 import '../../domain/services/text_to_speech_provider.dart';
 
 class MockTextToSpeechProvider implements TextToSpeechProvider {
-  final StreamController<bool> _playbackController = StreamController<bool>.broadcast();
+  final StreamController<bool> _playbackController =
+      StreamController<bool>.broadcast();
   Timer? _playbackTimer;
 
   @override

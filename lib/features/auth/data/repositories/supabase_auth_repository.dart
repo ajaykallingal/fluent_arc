@@ -8,14 +8,15 @@ class SupabaseAuthRepository implements AuthRepository {
   final bool _isBackendEnabled;
 
   // In-memory fallback fields for offline mode
-  final StreamController<UserProfile?> _fallbackController = StreamController<UserProfile?>.broadcast();
+  final StreamController<UserProfile?> _fallbackController =
+      StreamController<UserProfile?>.broadcast();
   UserProfile? _currentFallbackUser;
 
   SupabaseAuthRepository({
     supabase.SupabaseClient? supabaseClient,
     bool isBackendEnabled = true,
-  })  : _supabaseClient = supabaseClient,
-        _isBackendEnabled = isBackendEnabled {
+  }) : _supabaseClient = supabaseClient,
+       _isBackendEnabled = isBackendEnabled {
     if (!_isBackendEnabled) {
       _fallbackController.add(null);
     }
@@ -24,7 +25,7 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Stream<UserProfile?> get authStateChanges {
     if (_isBackendEnabled && _supabaseClient != null) {
-      return _supabaseClient!.auth.onAuthStateChange.map((authState) {
+      return _supabaseClient.auth.onAuthStateChange.map((authState) {
         final user = authState.session?.user;
         if (user == null) return null;
         return UserProfile(
@@ -42,7 +43,7 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<UserProfile?> getCurrentUser() async {
     if (_isBackendEnabled && _supabaseClient != null) {
-      final user = _supabaseClient!.auth.currentUser;
+      final user = _supabaseClient.auth.currentUser;
       if (user == null) return null;
       return UserProfile(
         uid: user.id,
@@ -56,10 +57,13 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<UserProfile> signInWithEmailPassword(String email, String password) async {
+  Future<UserProfile> signInWithEmailPassword(
+    String email,
+    String password,
+  ) async {
     if (_isBackendEnabled && _supabaseClient != null) {
       try {
-        final response = await _supabaseClient!.auth.signInWithPassword(
+        final response = await _supabaseClient.auth.signInWithPassword(
           email: email,
           password: password,
         );
@@ -94,10 +98,13 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<UserProfile> signUpWithEmailPassword(String email, String password) async {
+  Future<UserProfile> signUpWithEmailPassword(
+    String email,
+    String password,
+  ) async {
     if (_isBackendEnabled && _supabaseClient != null) {
       try {
-        final response = await _supabaseClient!.auth.signUp(
+        final response = await _supabaseClient.auth.signUp(
           email: email,
           password: password,
         );
@@ -129,7 +136,7 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() async {
     if (_isBackendEnabled && _supabaseClient != null) {
-      await _supabaseClient!.auth.signOut();
+      await _supabaseClient.auth.signOut();
     } else {
       _currentFallbackUser = null;
       _fallbackController.add(null);

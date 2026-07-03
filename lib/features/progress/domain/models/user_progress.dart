@@ -18,20 +18,21 @@ class UserProgress {
   });
 
   Map<String, dynamic> toJson() => {
-        'uid': uid,
-        'lessonsCompleted': lessonsCompleted,
-        'grammarScoreAverage': grammarScoreAverage,
-        'vocabularyLearnedCount': vocabularyLearnedCount,
-        'speakingSessionsCount': speakingSessionsCount,
-        'streakDays': streakDays,
-        'lastActiveDate': lastActiveDate.toIso8601String(),
-      };
+    'uid': uid,
+    'lessonsCompleted': lessonsCompleted,
+    'grammarScoreAverage': grammarScoreAverage,
+    'vocabularyLearnedCount': vocabularyLearnedCount,
+    'speakingSessionsCount': speakingSessionsCount,
+    'streakDays': streakDays,
+    'lastActiveDate': lastActiveDate.toIso8601String(),
+  };
 
   factory UserProgress.fromJson(Map<String, dynamic> json) {
     return UserProgress(
       uid: json['uid'] as String? ?? '',
       lessonsCompleted: json['lessonsCompleted'] as int? ?? 0,
-      grammarScoreAverage: (json['grammarScoreAverage'] as num?)?.toDouble() ?? 0.0,
+      grammarScoreAverage:
+          (json['grammarScoreAverage'] as num?)?.toDouble() ?? 0.0,
       vocabularyLearnedCount: json['vocabularyLearnedCount'] as int? ?? 0,
       speakingSessionsCount: json['speakingSessionsCount'] as int? ?? 0,
       streakDays: json['streakDays'] as int? ?? 0,
@@ -65,8 +66,10 @@ class UserProgress {
       uid: uid,
       lessonsCompleted: lessonsCompleted ?? this.lessonsCompleted,
       grammarScoreAverage: grammarScoreAverage ?? this.grammarScoreAverage,
-      vocabularyLearnedCount: vocabularyLearnedCount ?? this.vocabularyLearnedCount,
-      speakingSessionsCount: speakingSessionsCount ?? this.speakingSessionsCount,
+      vocabularyLearnedCount:
+          vocabularyLearnedCount ?? this.vocabularyLearnedCount,
+      speakingSessionsCount:
+          speakingSessionsCount ?? this.speakingSessionsCount,
       streakDays: streakDays ?? this.streakDays,
       lastActiveDate: lastActiveDate ?? this.lastActiveDate,
     );

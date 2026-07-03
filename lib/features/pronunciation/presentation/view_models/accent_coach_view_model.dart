@@ -40,8 +40,8 @@ final analyzerProvider = Provider<PronunciationAnalyzer>((ref) {
 /// .overrideWithValue(...)`.
 final pronunciationAttemptRepositoryProvider =
     Provider<PronunciationAttemptRepository>((ref) {
-  return SqlitePronunciationAttemptRepository();
-});
+      return SqlitePronunciationAttemptRepository();
+    });
 
 class AccentCoachState {
   final String targetText;
@@ -63,12 +63,12 @@ class AccentCoachState {
   });
 
   factory AccentCoachState.initial() => const AccentCoachState(
-        targetText: 'I would like to acquire native fluency in speaking.',
-        spokenText: '',
-        isListening: false,
-        isPlayingTts: false,
-        isAnalyzing: false,
-      );
+    targetText: 'I would like to acquire native fluency in speaking.',
+    spokenText: '',
+    isListening: false,
+    isPlayingTts: false,
+    isAnalyzing: false,
+  );
 
   AccentCoachState copyWith({
     String? targetText,
@@ -161,7 +161,9 @@ class AccentCoachNotifier extends Notifier<AccentCoachState> {
     state = state.copyWith(isAnalyzing: true);
     try {
       // Simulate that the user mispronounced the word 'acquire' as 'require'
-      final spoken = state.targetText.replaceAll('acquire', 'require').replaceAll('Acquire', 'require');
+      final spoken = state.targetText
+          .replaceAll('acquire', 'require')
+          .replaceAll('Acquire', 'require');
       if (_stt is MockSpeechToTextProvider) {
         _stt.setSimulatedTranscript(spoken);
       }
@@ -214,5 +216,5 @@ class AccentCoachNotifier extends Notifier<AccentCoachState> {
 
 final accentCoachNotifierProvider =
     NotifierProvider<AccentCoachNotifier, AccentCoachState>(() {
-  return AccentCoachNotifier();
-});
+      return AccentCoachNotifier();
+    });

@@ -12,14 +12,14 @@ class SupabaseConversationRepository implements ConversationRepository {
   SupabaseConversationRepository({
     SupabaseClient? supabaseClient,
     bool isBackendEnabled = true,
-  })  : _supabaseClient = supabaseClient,
-        _isBackendEnabled = isBackendEnabled;
+  }) : _supabaseClient = supabaseClient,
+       _isBackendEnabled = isBackendEnabled;
 
   @override
   Future<List<ChatMessage>> getMessages(String userId) async {
     if (_isBackendEnabled && _supabaseClient != null) {
       try {
-        final response = await _supabaseClient!
+        final response = await _supabaseClient
             .from('conversations')
             .select()
             .eq('user_id', userId)
@@ -45,9 +45,7 @@ class SupabaseConversationRepository implements ConversationRepository {
       try {
         final data = message.toJson();
         data['user_id'] = userId; // Add relation ID
-        await _supabaseClient!
-            .from('conversations')
-            .upsert(data);
+        await _supabaseClient.from('conversations').upsert(data);
       } catch (_) {
         // Retain local cache
       }
@@ -60,7 +58,7 @@ class SupabaseConversationRepository implements ConversationRepository {
 
     if (_isBackendEnabled && _supabaseClient != null) {
       try {
-        await _supabaseClient!
+        await _supabaseClient
             .from('conversations')
             .delete()
             .eq('user_id', userId);

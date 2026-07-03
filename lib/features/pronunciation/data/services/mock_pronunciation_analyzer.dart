@@ -5,14 +5,31 @@ class MockPronunciationAnalyzer implements PronunciationAnalyzer {
   final Random _random = Random();
 
   @override
-  Future<PronunciationAnalysisResult> analyze(String targetText, String spokenText) async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate remote analysis
+  Future<PronunciationAnalysisResult> analyze(
+    String targetText,
+    String spokenText,
+  ) async {
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Simulate remote analysis
 
-    final cleanTarget = targetText.replaceAll(RegExp(r'[.,\/#!$%\^&\*;:{}=\-_`~()]'), '');
-    final targetWords = cleanTarget.split(' ').where((w) => w.isNotEmpty).toList();
-    
-    final cleanSpoken = spokenText.toLowerCase().replaceAll(RegExp(r'[.,\/#!$%\^&\*;:{}=\-_`~()]'), '');
-    final spokenWords = cleanSpoken.split(' ').where((w) => w.isNotEmpty).toList();
+    final cleanTarget = targetText.replaceAll(
+      RegExp(r'[.,\/#!$%\^&\*;:{}=\-_`~()]'),
+      '',
+    );
+    final targetWords = cleanTarget
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .toList();
+
+    final cleanSpoken = spokenText.toLowerCase().replaceAll(
+      RegExp(r'[.,\/#!$%\^&\*;:{}=\-_`~()]'),
+      '',
+    );
+    final spokenWords = cleanSpoken
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .toList();
 
     final wordsResult = <PronunciationWord>[];
     double totalScore = 0.0;
@@ -20,7 +37,7 @@ class MockPronunciationAnalyzer implements PronunciationAnalyzer {
     for (int i = 0; i < targetWords.length; i++) {
       final targetWord = targetWords[i];
       final targetLower = targetWord.toLowerCase();
-      
+
       int score;
       String feedback = '';
 
@@ -29,14 +46,16 @@ class MockPronunciationAnalyzer implements PronunciationAnalyzer {
         // For demonstration purposes, trigger a simulated accent correction on the third word
         if (i == 2 && targetWords.length > 2) {
           score = 58;
-          feedback = 'Shorten the vowel sound slightly. Ensure your tongue touches the roof of your mouth.';
+          feedback =
+              'Shorten the vowel sound slightly. Ensure your tongue touches the roof of your mouth.';
         } else {
           score = 86 + _random.nextInt(14); // 86 to 99
           feedback = 'Excellent pronunciation!';
         }
       } else {
         score = 35 + _random.nextInt(20); // 35 to 55
-        feedback = 'Word was omitted or mispronounced. Practice repeating this sound.';
+        feedback =
+            'Word was omitted or mispronounced. Practice repeating this sound.';
       }
 
       wordsResult.add(
@@ -45,7 +64,9 @@ class MockPronunciationAnalyzer implements PronunciationAnalyzer {
       totalScore += score;
     }
 
-    final overall = targetWords.isEmpty ? 100.0 : totalScore / targetWords.length;
+    final overall = targetWords.isEmpty
+        ? 100.0
+        : totalScore / targetWords.length;
 
     // Mock sub-scores: keep behavior obviously synthetic (range 60-95)
     // so a real future remote scorer can be told apart from this one
@@ -57,11 +78,14 @@ class MockPronunciationAnalyzer implements PronunciationAnalyzer {
 
     String generalFeedback = 'Good attempt! ';
     if (overall >= 85) {
-      generalFeedback += 'Your pronunciation is highly accurate and flows naturally.';
+      generalFeedback +=
+          'Your pronunciation is highly accurate and flows naturally.';
     } else if (overall >= 70) {
-      generalFeedback += 'Try to focus on the highlighted word with lower accuracy and repeat the sentence slowly.';
+      generalFeedback +=
+          'Try to focus on the highlighted word with lower accuracy and repeat the sentence slowly.';
     } else {
-      generalFeedback += 'Work on articulation and sentence speed. Take a breath between clauses.';
+      generalFeedback +=
+          'Work on articulation and sentence speed. Take a breath between clauses.';
     }
 
     return PronunciationAnalysisResult(

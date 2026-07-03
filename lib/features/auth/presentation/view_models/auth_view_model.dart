@@ -29,17 +29,16 @@ class AuthState {
   final UserProfile? user;
   final String? errorMessage;
 
-  const AuthState({
-    required this.status,
-    this.user,
-    this.errorMessage,
-  });
+  const AuthState({required this.status, this.user, this.errorMessage});
 
   factory AuthState.initial() => const AuthState(status: AuthStatus.initial);
   factory AuthState.loading() => const AuthState(status: AuthStatus.loading);
-  factory AuthState.authenticated(UserProfile user) => AuthState(status: AuthStatus.authenticated, user: user);
-  factory AuthState.unauthenticated() => const AuthState(status: AuthStatus.unauthenticated);
-  factory AuthState.error(String message) => AuthState(status: AuthStatus.error, errorMessage: message);
+  factory AuthState.authenticated(UserProfile user) =>
+      AuthState(status: AuthStatus.authenticated, user: user);
+  factory AuthState.unauthenticated() =>
+      const AuthState(status: AuthStatus.unauthenticated);
+  factory AuthState.error(String message) =>
+      AuthState(status: AuthStatus.error, errorMessage: message);
 }
 
 class AuthNotifier extends Notifier<AuthState> {
@@ -49,24 +48,28 @@ class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
     _authRepository = ref.watch(authRepositoryProvider);
-    
+
     // Setup listener to auth state changes
-    _subscription = _authRepository.authStateChanges.listen((user) {
-      if (ref.mounted) {
-        if (user != null) {
-          state = AuthState.authenticated(user);
-        } else {
-          // Only transition to unauthenticated if we were previously logged in
-          if (state.status == AuthStatus.authenticated || state.status == AuthStatus.initial) {
-            state = AuthState.unauthenticated();
+    _subscription = _authRepository.authStateChanges.listen(
+      (user) {
+        if (ref.mounted) {
+          if (user != null) {
+            state = AuthState.authenticated(user);
+          } else {
+            // Only transition to unauthenticated if we were previously logged in
+            if (state.status == AuthStatus.authenticated ||
+                state.status == AuthStatus.initial) {
+              state = AuthState.unauthenticated();
+            }
           }
         }
-      }
-    }, onError: (e) {
-      if (ref.mounted) {
-        state = AuthState.error(e.toString());
-      }
-    });
+      },
+      onError: (e) {
+        if (ref.mounted) {
+          state = AuthState.error(e.toString());
+        }
+      },
+    );
 
     ref.onDispose(() {
       _subscription?.cancel();
@@ -81,7 +84,9 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final user = await _authRepository.getCurrentUser();
       if (ref.mounted) {
-        state = user != null ? AuthState.authenticated(user) : AuthState.unauthenticated();
+        state = user != null
+            ? AuthState.authenticated(user)
+            : AuthState.unauthenticated();
       }
     } catch (e) {
       if (ref.mounted) {
@@ -93,7 +98,10 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> login(String email, String password) async {
     state = AuthState.loading();
     try {
-      final user = await _authRepository.signInWithEmailPassword(email, password);
+      final user = await _authRepository.signInWithEmailPassword(
+        email,
+        password,
+      );
       if (ref.mounted) {
         state = AuthState.authenticated(user);
       }
@@ -107,7 +115,10 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> signUp(String email, String password) async {
     state = AuthState.loading();
     try {
-      final user = await _authRepository.signUpWithEmailPassword(email, password);
+      final user = await _authRepository.signUpWithEmailPassword(
+        email,
+        password,
+      );
       if (ref.mounted) {
         state = AuthState.authenticated(user);
       }

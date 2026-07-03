@@ -78,11 +78,11 @@ class AiGrammarAnalysis {
   }
 
   Map<String, dynamic> toJson() => {
-        'originalSentence': originalSentence,
-        'correctedSentence': correctedSentence,
-        'explanation': explanation,
-        'grammarScore': grammarScore,
-      };
+    'originalSentence': originalSentence,
+    'correctedSentence': correctedSentence,
+    'explanation': explanation,
+    'grammarScore': grammarScore,
+  };
 }
 
 class AiVocabularyWord {
@@ -108,20 +108,25 @@ class AiVocabularyWord {
   }
 
   Map<String, dynamic> toJson() => {
-        'word': word,
-        'definition': definition,
-        'example': example,
-        'difficulty': difficulty,
-      };
+    'word': word,
+    'definition': definition,
+    'example': example,
+    'difficulty': difficulty,
+  };
 }
 
 abstract class AiProvider {
   Future<String> generateText(String prompt);
-  
-  Future<String> generateChatResponse(List<AiChatMessage> history, String newMessage);
-  
-  Future<AiGrammarAnalysis> analyzeGrammar(String text);
-  
-  Future<List<AiVocabularyWord>> suggestVocabulary(String topic, {String difficulty = 'Intermediate'});
-}
 
+  Future<String> generateChatResponse(
+    List<AiChatMessage> history,
+    String newMessage,
+  );
+
+  Future<AiGrammarAnalysis> analyzeGrammar(String text);
+
+  Future<List<AiVocabularyWord>> suggestVocabulary(
+    String topic, {
+    String difficulty = 'Intermediate',
+  });
+}

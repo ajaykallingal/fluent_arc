@@ -4,7 +4,9 @@ import 'package:fluent_arc/features/dashboard/presentation/view_models/dashboard
 import 'package:fluent_arc/features/auth/presentation/view_models/auth_view_model.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthNotifier extends Notifier<AuthState> with Mock implements AuthNotifier {}
+class MockAuthNotifier extends Notifier<AuthState>
+    with Mock
+    implements AuthNotifier {}
 
 void main() {
   late ProviderContainer container;
@@ -20,7 +22,7 @@ void main() {
   group('DashboardViewModel Tests', () {
     test('initial state contains mock values', () {
       final stats = container.read(dashboardViewModelProvider);
-      
+
       expect(stats.streakDays, equals(3));
       expect(stats.overallProgress, equals(45));
       expect(stats.grammarScore, equals(78.0));

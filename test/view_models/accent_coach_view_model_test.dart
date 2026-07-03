@@ -13,8 +13,7 @@ import 'package:fluent_arc/features/pronunciation/domain/services/speech_to_text
 import 'package:fluent_arc/features/pronunciation/domain/services/text_to_speech_provider.dart';
 import 'package:fluent_arc/features/pronunciation/presentation/view_models/accent_coach_view_model.dart';
 
-class _MockRepository extends Mock
-    implements PronunciationAttemptRepository {}
+class _MockRepository extends Mock implements PronunciationAttemptRepository {}
 
 class _FakeAnalyzer implements PronunciationAnalyzer {
   final List<Map<String, String>> calls = [];
@@ -141,8 +140,7 @@ void main() {
           analyzerProvider.overrideWithValue(analyzer),
           sttProvider.overrideWithValue(stt),
           ttsProvider.overrideWithValue(_FakeTts()),
-          pronunciationAttemptRepositoryProvider
-              .overrideWithValue(repository),
+          pronunciationAttemptRepositoryProvider.overrideWithValue(repository),
         ],
       );
     });
@@ -151,25 +149,28 @@ void main() {
       container.dispose();
     });
 
-    test('successful analysis writes one row to the repository (AC #4)',
-        () async {
-      final notifier = container.read(accentCoachNotifierProvider.notifier);
-      await notifier.stopRecordingAndAnalyze();
+    test(
+      'successful analysis writes one row to the repository (AC #4)',
+      () async {
+        final notifier = container.read(accentCoachNotifierProvider.notifier);
+        await notifier.stopRecordingAndAnalyze();
 
-      // Allow the in-notifier try/catch to settle.
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+        // Allow the in-notifier try/catch to settle.
+        await Future<void>.delayed(const Duration(milliseconds: 10));
 
-      final captured = verify(() => repository.recordAttempt(captureAny()))
-          .captured
-          .single as PronunciationAttempt;
-      expect(captured.engine, equals('offline-local'));
-      expect(captured.overallScore, equals(80));
-      expect(captured.attemptedAt, isNotNull);
-    });
+        final captured =
+            verify(() => repository.recordAttempt(captureAny())).captured.single
+                as PronunciationAttempt;
+        expect(captured.engine, equals('offline-local'));
+        expect(captured.overallScore, equals(80));
+        expect(captured.attemptedAt, isNotNull);
+      },
+    );
 
     test('failing repository does not clobber result (AC #7)', () async {
-      when(() => repository.recordAttempt(any()))
-          .thenThrow(Exception('disk full'));
+      when(
+        () => repository.recordAttempt(any()),
+      ).thenThrow(Exception('disk full'));
 
       final notifier = container.read(accentCoachNotifierProvider.notifier);
       await notifier.stopRecordingAndAnalyze();

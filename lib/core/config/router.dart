@@ -10,22 +10,13 @@ import '../../features/progress/presentation/views/progress_view.dart';
 final goRouter = GoRouter(
   initialLocation: '/login',
   routes: [
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginView(),
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const DashboardView(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginView()),
+    GoRoute(path: '/', builder: (context, state) => const DashboardView()),
     GoRoute(
       path: '/conversation',
       builder: (context, state) => const ConversationView(),
     ),
-    GoRoute(
-      path: '/grammar',
-      builder: (context, state) => const GrammarView(),
-    ),
+    GoRoute(path: '/grammar', builder: (context, state) => const GrammarView()),
     GoRoute(
       path: '/vocabulary',
       builder: (context, state) => const VocabularyView(),

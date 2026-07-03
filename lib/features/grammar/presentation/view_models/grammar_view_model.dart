@@ -15,11 +15,7 @@ class GrammarState {
   final bool isLoading;
   final String? errorMessage;
 
-  const GrammarState({
-    this.report,
-    required this.isLoading,
-    this.errorMessage,
-  });
+  const GrammarState({this.report, required this.isLoading, this.errorMessage});
 
   factory GrammarState.initial() => const GrammarState(isLoading: false);
 }
@@ -41,7 +37,9 @@ class GrammarNotifier extends Notifier<GrammarState> {
       final report = await _repository.checkSentence(text);
       if (ref.mounted) {
         state = GrammarState(report: report, isLoading: false);
-        ref.read(progressNotifierProvider.notifier).recordGrammarCheck(report.score.toDouble());
+        ref
+            .read(progressNotifierProvider.notifier)
+            .recordGrammarCheck(report.score.toDouble());
       }
     } catch (e) {
       if (ref.mounted) {
@@ -58,6 +56,8 @@ class GrammarNotifier extends Notifier<GrammarState> {
   }
 }
 
-final grammarNotifierProvider = NotifierProvider<GrammarNotifier, GrammarState>(() {
-  return GrammarNotifier();
-});
+final grammarNotifierProvider = NotifierProvider<GrammarNotifier, GrammarState>(
+  () {
+    return GrammarNotifier();
+  },
+);

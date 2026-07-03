@@ -5,7 +5,8 @@ import '../../domain/repositories/grammar_repository.dart';
 class AiGrammarRepository implements GrammarRepository {
   final AiProvider _aiProvider;
 
-  AiGrammarRepository({required AiProvider aiProvider}) : _aiProvider = aiProvider;
+  AiGrammarRepository({required AiProvider aiProvider})
+    : _aiProvider = aiProvider;
 
   @override
   Future<GrammarReport> checkSentence(String text) async {

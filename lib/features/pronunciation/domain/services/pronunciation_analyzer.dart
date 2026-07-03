@@ -10,10 +10,10 @@ class PronunciationWord {
   });
 
   Map<String, dynamic> toJson() => {
-        'word': word,
-        'score': score,
-        'feedback': feedback,
-      };
+    'word': word,
+    'score': score,
+    'feedback': feedback,
+  };
 }
 
 class PronunciationAnalysisResult {
@@ -44,16 +44,19 @@ class PronunciationAnalysisResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'overallScore': overallScore,
-        'words': words.map((w) => w.toJson()).toList(),
-        'generalFeedback': generalFeedback,
-        'accuracyScore': accuracyScore,
-        'fluencyScore': fluencyScore,
-        'completenessScore': completenessScore,
-        'engine': engine,
-      };
+    'overallScore': overallScore,
+    'words': words.map((w) => w.toJson()).toList(),
+    'generalFeedback': generalFeedback,
+    'accuracyScore': accuracyScore,
+    'fluencyScore': fluencyScore,
+    'completenessScore': completenessScore,
+    'engine': engine,
+  };
 }
 
 abstract class PronunciationAnalyzer {
-  Future<PronunciationAnalysisResult> analyze(String targetText, String spokenText);
+  Future<PronunciationAnalysisResult> analyze(
+    String targetText,
+    String spokenText,
+  );
 }

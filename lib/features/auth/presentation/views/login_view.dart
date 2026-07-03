@@ -65,7 +65,10 @@ class _LoginViewState extends ConsumerState<LoginView> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
               child: Column(
@@ -78,17 +81,22 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+                          colors: [
+                            theme.colorScheme.primary,
+                            theme.colorScheme.secondary,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.3,
+                            ),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
-                          )
+                          ),
                         ],
                       ),
                       child: const Icon(
@@ -143,7 +151,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                                 if (value == null || value.isEmpty) {
                                   return 'Email is required';
                                 }
-                                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                if (!RegExp(
+                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                ).hasMatch(value)) {
                                   return 'Please enter a valid email';
                                 }
                                 return null;
@@ -157,7 +167,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
                               prefixIcon: Icons.lock_outline_rounded,
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                  _isPasswordVisible
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                   color: theme.colorScheme.primary,
                                 ),
                                 onPressed: () {
@@ -195,8 +207,14 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        _isSignUp ? 'Already have an account? ' : "Don't have an account? ",
-                        style: TextStyle(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                        _isSignUp
+                            ? 'Already have an account? '
+                            : "Don't have an account? ",
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {

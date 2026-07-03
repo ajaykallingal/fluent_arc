@@ -15,9 +15,7 @@ class AccentCoachView extends ConsumerWidget {
     final notifier = ref.read(accentCoachNotifierProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Accent Coach'),
-      ),
+      appBar: AppBar(title: const Text('Accent Coach')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -38,12 +36,16 @@ class AccentCoachView extends ConsumerWidget {
                             'Target Practice Phrase',
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.6,
+                              ),
                             ),
                           ),
                           IconButton(
                             icon: Icon(
-                              state.isPlayingTts ? Icons.volume_up : Icons.volume_mute,
+                              state.isPlayingTts
+                                  ? Icons.volume_up
+                                  : Icons.volume_mute,
                               color: theme.colorScheme.primary,
                             ),
                             tooltip: 'Hear pronunciation',
@@ -68,7 +70,8 @@ class AccentCoachView extends ConsumerWidget {
                         label: const Text('Choose Another Phrase'),
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(120, 40),
-                          backgroundColor: theme.colorScheme.secondary.withOpacity(0.1),
+                          backgroundColor: theme.colorScheme.secondary
+                              .withOpacity(0.1),
                           foregroundColor: theme.colorScheme.secondary,
                         ),
                       ),
@@ -86,11 +89,13 @@ class AccentCoachView extends ConsumerWidget {
                       state.isListening
                           ? 'Listening... Tap to finish'
                           : state.isAnalyzing
-                              ? 'Analyzing accents...'
-                              : 'Tap mic and read the phrase aloud',
+                          ? 'Analyzing accents...'
+                          : 'Tap mic and read the phrase aloud',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: state.isListening ? theme.colorScheme.error : null,
+                        color: state.isListening
+                            ? theme.colorScheme.error
+                            : null,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -130,8 +135,8 @@ class AccentCoachView extends ConsumerWidget {
     final micColor = isListening
         ? theme.colorScheme.error
         : isAnalyzing
-            ? theme.colorScheme.onSurface.withOpacity(0.1)
-            : theme.colorScheme.primary;
+        ? theme.colorScheme.onSurface.withOpacity(0.1)
+        : theme.colorScheme.primary;
 
     return GestureDetector(
       onTap: isAnalyzing
@@ -163,20 +168,20 @@ class AccentCoachView extends ConsumerWidget {
                   color: micColor.withOpacity(0.4),
                   blurRadius: isListening ? 24 : 8,
                   spreadRadius: isListening ? 4 : 0,
-                )
+                ),
               ],
             ),
             child: Icon(
               isListening
                   ? Icons.stop_rounded
                   : isAnalyzing
-                      ? Icons.sync_rounded
-                      : Icons.mic_none_rounded,
+                  ? Icons.sync_rounded
+                  : Icons.mic_none_rounded,
               color: isListening
                   ? Colors.white
                   : isAnalyzing
-                      ? theme.colorScheme.onSurface
-                      : Colors.white,
+                  ? theme.colorScheme.onSurface
+                  : Colors.white,
               size: 36,
             ),
           ),
@@ -195,7 +200,9 @@ class AccentCoachView extends ConsumerWidget {
       children: [
         Text(
           'Pronunciation Accuracy',
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         ScoreCard(
@@ -225,18 +232,18 @@ class AccentCoachView extends ConsumerWidget {
                   children: result.words.map((wordObj) {
                     final isCorrect = wordObj.score >= 80;
                     final isWarning = wordObj.score >= 50 && wordObj.score < 80;
-                    
+
                     final chipBg = isCorrect
                         ? theme.colorScheme.tertiary.withOpacity(0.1)
                         : isWarning
-                            ? Colors.orange.withOpacity(0.1)
-                            : theme.colorScheme.error.withOpacity(0.1);
+                        ? Colors.orange.withOpacity(0.1)
+                        : theme.colorScheme.error.withOpacity(0.1);
 
                     final chipColor = isCorrect
                         ? theme.colorScheme.tertiary
                         : isWarning
-                            ? Colors.orange[800]!
-                            : theme.colorScheme.error;
+                        ? Colors.orange[800]!
+                        : theme.colorScheme.error;
 
                     return ActionChip(
                       backgroundColor: chipBg,
@@ -277,7 +284,9 @@ class AccentCoachView extends ConsumerWidget {
             children: [
               Text(
                 'Feedback for "${wordObj.word}"',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Row(
@@ -290,8 +299,8 @@ class AccentCoachView extends ConsumerWidget {
                       color: wordObj.score >= 80
                           ? theme.colorScheme.tertiary
                           : wordObj.score >= 50
-                              ? Colors.orange
-                              : theme.colorScheme.error,
+                          ? Colors.orange
+                          : theme.colorScheme.error,
                     ),
                   ),
                 ],
@@ -346,7 +355,7 @@ class AccentCoachView extends ConsumerWidget {
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
-            )
+            ),
           ],
         );
       },

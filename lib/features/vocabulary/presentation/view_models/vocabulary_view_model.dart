@@ -30,11 +30,11 @@ class VocabularyState {
   });
 
   factory VocabularyState.initial() => const VocabularyState(
-        savedWords: [],
-        suggestions: [],
-        isLoadingSaved: false,
-        isLoadingSuggestions: false,
-      );
+    savedWords: [],
+    suggestions: [],
+    isLoadingSaved: false,
+    isLoadingSuggestions: false,
+  );
 
   VocabularyState copyWith({
     List<VocabularyWord>? savedWords,
@@ -61,7 +61,7 @@ class VocabularyNotifier extends Notifier<VocabularyState> {
   VocabularyState build() {
     _repository = ref.watch(vocabularyRepositoryProvider);
     _aiProvider = ref.watch(aiProvider);
-    
+
     _loadSavedWords();
     return VocabularyState.initial();
   }
@@ -77,20 +77,32 @@ class VocabularyNotifier extends Notifier<VocabularyState> {
         }
       } catch (_) {
         if (ref.mounted) {
-          state = state.copyWith(isLoadingSaved: false, errorMessage: 'Failed to load saved vocabulary.');
+          state = state.copyWith(
+            isLoadingSaved: false,
+            errorMessage: 'Failed to load saved vocabulary.',
+          );
         }
       }
     });
   }
 
-  Future<void> generateSuggestions(String topic, {String difficulty = 'Intermediate'}) async {
+  Future<void> generateSuggestions(
+    String topic, {
+    String difficulty = 'Intermediate',
+  }) async {
     if (topic.trim().isEmpty) return;
     state = state.copyWith(isLoadingSuggestions: true, errorMessage: null);
 
     try {
-      final suggested = await _aiProvider.suggestVocabulary(topic, difficulty: difficulty);
+      final suggested = await _aiProvider.suggestVocabulary(
+        topic,
+        difficulty: difficulty,
+      );
       if (ref.mounted) {
-        state = state.copyWith(suggestions: suggested, isLoadingSuggestions: false);
+        state = state.copyWith(
+          suggestions: suggested,
+          isLoadingSuggestions: false,
+        );
       }
     } catch (_) {
       if (ref.mounted) {
@@ -121,6 +133,7 @@ class VocabularyNotifier extends Notifier<VocabularyState> {
   }
 }
 
-final vocabularyNotifierProvider = NotifierProvider<VocabularyNotifier, VocabularyState>(() {
-  return VocabularyNotifier();
-});
+final vocabularyNotifierProvider =
+    NotifierProvider<VocabularyNotifier, VocabularyState>(() {
+      return VocabularyNotifier();
+    });

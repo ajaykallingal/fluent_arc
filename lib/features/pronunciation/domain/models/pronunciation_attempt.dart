@@ -31,29 +31,29 @@ class PronunciationAttempt {
   });
 
   PronunciationAttempt copyWith({int? id}) => PronunciationAttempt(
-        id: id ?? this.id,
-        targetPhrase: targetPhrase,
-        spokenText: spokenText,
-        overallScore: overallScore,
-        accuracyScore: accuracyScore,
-        fluencyScore: fluencyScore,
-        completenessScore: completenessScore,
-        engine: engine,
-        attemptedAt: attemptedAt,
-      );
+    id: id ?? this.id,
+    targetPhrase: targetPhrase,
+    spokenText: spokenText,
+    overallScore: overallScore,
+    accuracyScore: accuracyScore,
+    fluencyScore: fluencyScore,
+    completenessScore: completenessScore,
+    engine: engine,
+    attemptedAt: attemptedAt,
+  );
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'targetPhrase': targetPhrase,
-        'spokenText': spokenText,
-        'overallScore': overallScore,
-        'accuracyScore': accuracyScore,
-        'fluencyScore': fluencyScore,
-        'completenessScore': completenessScore,
-        'engine': engine,
-        // SQLite has no DateTime type — store ISO-8601 strings.
-        'attemptedAt': attemptedAt.toIso8601String(),
-      };
+    if (id != null) 'id': id,
+    'targetPhrase': targetPhrase,
+    'spokenText': spokenText,
+    'overallScore': overallScore,
+    'accuracyScore': accuracyScore,
+    'fluencyScore': fluencyScore,
+    'completenessScore': completenessScore,
+    'engine': engine,
+    // SQLite has no DateTime type — store ISO-8601 strings.
+    'attemptedAt': attemptedAt.toIso8601String(),
+  };
 
   factory PronunciationAttempt.fromMap(Map<String, Object?> map) {
     return PronunciationAttempt(
@@ -67,7 +67,7 @@ class PronunciationAttempt {
       engine: map['engine'] as String? ?? 'remote',
       attemptedAt:
           DateTime.tryParse(map['attemptedAt'] as String? ?? '') ??
-              DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 }

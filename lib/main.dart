@@ -20,18 +20,20 @@ void main() async {
   try {
     final supabaseUrl = dotenv.env['SUPABASE_URL'];
     final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-    
-    if (supabaseUrl != null && supabaseAnonKey != null && supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
-      await Supabase.initialize(
-        url: supabaseUrl,
-        anonKey: supabaseAnonKey,
-      );
+
+    if (supabaseUrl != null &&
+        supabaseAnonKey != null &&
+        supabaseUrl.isNotEmpty &&
+        supabaseAnonKey.isNotEmpty) {
+      await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
       isBackendInitialized = true;
     } else {
       debugPrint('Supabase credentials missing from .env');
     }
   } catch (e) {
-    debugPrint('Supabase initialization failed (running in offline/mock mode): $e');
+    debugPrint(
+      'Supabase initialization failed (running in offline/mock mode): $e',
+    );
   }
 
   runApp(
@@ -47,10 +49,7 @@ void main() async {
 class FluentArcApp extends StatelessWidget {
   final bool isBackendInitialized;
 
-  const FluentArcApp({
-    super.key,
-    required this.isBackendInitialized,
-  });
+  const FluentArcApp({super.key, required this.isBackendInitialized});
 
   @override
   Widget build(BuildContext context) {

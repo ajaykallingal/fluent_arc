@@ -98,15 +98,17 @@ class OfflinePronunciationAnalyzer implements PronunciationAnalyzer {
 
     // Sub-score: Levenshtein-based word-set similarity. Treats the
     // two word sets as multisets and computes edit distance.
-    final accuracyScore =
-        _levenshteinSimilarity(normalizedTarget, normalizedSpoken);
+    final accuracyScore = _levenshteinSimilarity(
+      normalizedTarget,
+      normalizedSpoken,
+    );
 
     // Sub-score: completeness = min(spoken.length, target.length) /
     // target.length clamped to [0, 100]. This penalizes missing
     // words but does not punish extra ones.
     final completenessRatio =
         min(normalizedSpoken.length, normalizedTarget.length) /
-            normalizedTarget.length;
+        normalizedTarget.length;
     final completenessScore = (completenessRatio * 100).round().clamp(0, 100);
 
     // Sub-score: fluency placeholder — inverse variance of spoken
@@ -119,8 +121,13 @@ class OfflinePronunciationAnalyzer implements PronunciationAnalyzer {
     final result = PronunciationAnalysisResult(
       overallScore: overallDouble,
       words: wordsResult,
-      generalFeedback: _buildGeneralFeedback(overallDouble, accuracyScore,
-          completenessScore, targetSet, spokenSet),
+      generalFeedback: _buildGeneralFeedback(
+        overallDouble,
+        accuracyScore,
+        completenessScore,
+        targetSet,
+        spokenSet,
+      ),
       accuracyScore: accuracyScore,
       fluencyScore: fluencyScore,
       completenessScore: completenessScore,
@@ -146,10 +153,7 @@ class OfflinePronunciationAnalyzer implements PronunciationAnalyzer {
   /// using a multiset Levenshtein distance, scaled by the target
   /// length. Identical sequences score 100; empty intersection
   /// scores 0.
-  static int _levenshteinSimilarity(
-    List<String> target,
-    List<String> spoken,
-  ) {
+  static int _levenshteinSimilarity(List<String> target, List<String> spoken) {
     if (target.isEmpty) return 0;
     final m = target.length;
     final n = spoken.length;
@@ -214,17 +218,16 @@ class OfflinePronunciationAnalyzer implements PronunciationAnalyzer {
       buffer.write(' You may have missed or added some words.');
     }
     if (targetSet.length != spokenSet.length) {
-      buffer.write(' Target had ${targetSet.length} unique words; '
-          'spoken had ${spokenSet.length}.');
+      buffer.write(
+        ' Target had ${targetSet.length} unique words; '
+        'spoken had ${spokenSet.length}.',
+      );
     }
     buffer.write(' Accuracy=$accuracy, Completeness=$completeness.');
     return buffer.toString();
   }
 
-  void _logStopwatch(
-    Stopwatch stopwatch,
-    PronunciationAnalysisResult result,
-  ) {
+  void _logStopwatch(Stopwatch stopwatch, PronunciationAnalysisResult result) {
     stopwatch.stop();
     // debugPrint per `knowledge/coding_standards.md`. No audio bytes
     // and no transcripts are emitted.

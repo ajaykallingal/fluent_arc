@@ -7,6 +7,7 @@ import 'package:fluent_arc/features/vocabulary/presentation/view_models/vocabula
 import 'package:fluent_arc/core/services/ai/ai_provider.dart';
 
 class MockVocabularyRepository extends Mock implements VocabularyRepository {}
+
 class MockAiProvider extends Mock implements AiProvider {}
 
 void main() {
@@ -31,13 +32,21 @@ void main() {
     mockAiProvider = MockAiProvider();
 
     // Default mock behavior
-    when(() => mockVocabularyRepository.getSavedWords()).thenAnswer((_) => Future.value([]));
-    when(() => mockVocabularyRepository.saveWord(any())).thenAnswer((_) => Future.value());
-    when(() => mockVocabularyRepository.deleteWord(any())).thenAnswer((_) => Future.value());
+    when(
+      () => mockVocabularyRepository.getSavedWords(),
+    ).thenAnswer((_) => Future.value([]));
+    when(
+      () => mockVocabularyRepository.saveWord(any()),
+    ).thenAnswer((_) => Future.value());
+    when(
+      () => mockVocabularyRepository.deleteWord(any()),
+    ).thenAnswer((_) => Future.value());
 
     container = ProviderContainer(
       overrides: [
-        vocabularyRepositoryProvider.overrideWithValue(mockVocabularyRepository),
+        vocabularyRepositoryProvider.overrideWithValue(
+          mockVocabularyRepository,
+        ),
         aiProvider.overrideWithValue(mockAiProvider),
       ],
     );
@@ -58,7 +67,9 @@ void main() {
         addedAt: DateTime.now(),
       );
 
-      when(() => mockVocabularyRepository.getSavedWords()).thenAnswer((_) => Future.value([initialWord]));
+      when(
+        () => mockVocabularyRepository.getSavedWords(),
+      ).thenAnswer((_) => Future.value([initialWord]));
 
       // Read to trigger build()
       container.read(vocabularyNotifierProvider);
@@ -79,11 +90,13 @@ void main() {
           definition: 'Journey',
           example: 'I love travel',
           difficulty: 'Beginner',
-        )
+        ),
       ];
 
-      when(() => mockAiProvider.suggestVocabulary('travel', difficulty: 'Beginner'))
-          .thenAnswer((_) => Future.value(mockSuggestions));
+      when(
+        () =>
+            mockAiProvider.suggestVocabulary('travel', difficulty: 'Beginner'),
+      ).thenAnswer((_) => Future.value(mockSuggestions));
 
       // Trigger provider build
       container.read(vocabularyNotifierProvider);
@@ -111,13 +124,15 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 10));
 
       final notifier = container.read(vocabularyNotifierProvider.notifier);
-      
+
       // We expect saveWord to call repository insert
       await notifier.saveWord(newWord);
       await Future.delayed(const Duration(milliseconds: 10));
 
       verify(() => mockVocabularyRepository.saveWord(any())).called(1);
-      verify(() => mockVocabularyRepository.getSavedWords()).called(2); // Initial build + reload
+      verify(
+        () => mockVocabularyRepository.getSavedWords(),
+      ).called(2); // Initial build + reload
     });
   });
 }

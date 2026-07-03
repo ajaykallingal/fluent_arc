@@ -25,7 +25,8 @@ class ConversationState {
     this.errorMessage,
   });
 
-  factory ConversationState.initial() => const ConversationState(messages: [], isTyping: false);
+  factory ConversationState.initial() =>
+      const ConversationState(messages: [], isTyping: false);
 
   ConversationState copyWith({
     List<ChatMessage>? messages,
@@ -49,9 +50,10 @@ class ConversationNotifier extends Notifier<ConversationState> {
   ConversationState build() {
     _repository = ref.watch(conversationRepositoryProvider);
     _aiProvider = ref.watch(aiProvider);
-    
+
     final authState = ref.watch(authNotifierProvider);
-    if (authState.status == AuthStatus.authenticated && authState.user != null) {
+    if (authState.status == AuthStatus.authenticated &&
+        authState.user != null) {
       _userId = authState.user!.uid;
       _loadHistory();
     } else {
@@ -70,10 +72,14 @@ class ConversationNotifier extends Notifier<ConversationState> {
           // Add a welcoming message from the tutor
           final welcomeMessage = ChatMessage.create(
             sender: MessageSender.ai,
-            text: "Hello! I am your AI English tutor. What topic would you like to talk about today?",
+            text:
+                "Hello! I am your AI English tutor. What topic would you like to talk about today?",
           );
           await _repository.saveMessage(_userId!, welcomeMessage);
-          state = ConversationState(messages: [welcomeMessage], isTyping: false);
+          state = ConversationState(
+            messages: [welcomeMessage],
+            isTyping: false,
+          );
         } else {
           state = ConversationState(messages: history, isTyping: false);
         }
@@ -95,8 +101,13 @@ class ConversationNotifier extends Notifier<ConversationState> {
 
     // Save locally and update UI state
     await _repository.saveMessage(_userId!, userMessage);
-    final updatedList = List<ChatMessage>.from(state.messages)..add(userMessage);
-    state = state.copyWith(messages: updatedList, isTyping: true, errorMessage: null);
+    final updatedList = List<ChatMessage>.from(state.messages)
+      ..add(userMessage);
+    state = state.copyWith(
+      messages: updatedList,
+      isTyping: true,
+      errorMessage: null,
+    );
 
     try {
       // Convert history to AI chat message format
@@ -108,7 +119,10 @@ class ConversationNotifier extends Notifier<ConversationState> {
       }).toList();
 
       // Get tutor response
-      final aiResponse = await _aiProvider.generateChatResponse(historyPrompts, text);
+      final aiResponse = await _aiProvider.generateChatResponse(
+        historyPrompts,
+        text,
+      );
 
       final aiMessage = ChatMessage.create(
         sender: MessageSender.ai,
@@ -116,9 +130,10 @@ class ConversationNotifier extends Notifier<ConversationState> {
       );
 
       await _repository.saveMessage(_userId!, aiMessage);
-      
+
       if (ref.mounted) {
-        final finalHistory = List<ChatMessage>.from(state.messages)..add(aiMessage);
+        final finalHistory = List<ChatMessage>.from(state.messages)
+          ..add(aiMessage);
         state = state.copyWith(messages: finalHistory, isTyping: false);
       }
     } catch (e) {
@@ -135,11 +150,12 @@ class ConversationNotifier extends Notifier<ConversationState> {
     if (_userId == null) return;
     state = state.copyWith(isTyping: true);
     await _repository.clearHistory(_userId!);
-    
+
     if (ref.mounted) {
       final welcomeMessage = ChatMessage.create(
         sender: MessageSender.ai,
-        text: "Hello! I've cleared our chat history. What would you like to speak about now?",
+        text:
+            "Hello! I've cleared our chat history. What would you like to speak about now?",
       );
       await _repository.saveMessage(_userId!, welcomeMessage);
       state = ConversationState(messages: [welcomeMessage], isTyping: false);
@@ -147,6 +163,7 @@ class ConversationNotifier extends Notifier<ConversationState> {
   }
 }
 
-final conversationNotifierProvider = NotifierProvider<ConversationNotifier, ConversationState>(() {
-  return ConversationNotifier();
-});
+final conversationNotifierProvider =
+    NotifierProvider<ConversationNotifier, ConversationState>(() {
+      return ConversationNotifier();
+    });

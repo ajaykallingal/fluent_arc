@@ -35,15 +35,16 @@ class ProgressNotifier extends Notifier<ProgressState> {
   @override
   ProgressState build() {
     _repository = ref.watch(progressRepositoryProvider);
-    
+
     final authState = ref.watch(authNotifierProvider);
-    if (authState.status == AuthStatus.authenticated && authState.user != null) {
+    if (authState.status == AuthStatus.authenticated &&
+        authState.user != null) {
       _userId = authState.user!.uid;
       _loadProgress();
     } else {
       _userId = null;
     }
-    
+
     return ProgressState.initial();
   }
 
@@ -58,7 +59,10 @@ class ProgressNotifier extends Notifier<ProgressState> {
         }
       } catch (e) {
         if (ref.mounted) {
-          state = ProgressState(isLoading: false, errorMessage: 'Failed to load progress.');
+          state = ProgressState(
+            isLoading: false,
+            errorMessage: 'Failed to load progress.',
+          );
         }
       }
     });
@@ -77,6 +81,7 @@ class ProgressNotifier extends Notifier<ProgressState> {
   }
 }
 
-final progressNotifierProvider = NotifierProvider<ProgressNotifier, ProgressState>(() {
-  return ProgressNotifier();
-});
+final progressNotifierProvider =
+    NotifierProvider<ProgressNotifier, ProgressState>(() {
+      return ProgressNotifier();
+    });

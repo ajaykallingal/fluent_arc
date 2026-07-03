@@ -15,16 +15,23 @@ void main() {
     });
 
     test('generateChatResponse responds to greetings', () async {
-      final response = await mockAiProvider.generateChatResponse([], 'Hello tutor!');
+      final response = await mockAiProvider.generateChatResponse(
+        [],
+        'Hello tutor!',
+      );
       expect(response, contains('AI language tutor'));
     });
 
     test('analyzeGrammar detects standard grammatical errors', () async {
-      final result = await mockAiProvider.analyzeGrammar('I is going to the market.');
+      final result = await mockAiProvider.analyzeGrammar(
+        'I is going to the market.',
+      );
       expect(result.correctedSentence, contains('I am going'));
       expect(result.grammarScore, lessThan(100));
 
-      final correctResult = await mockAiProvider.analyzeGrammar('I am going to the market.');
+      final correctResult = await mockAiProvider.analyzeGrammar(
+        'I am going to the market.',
+      );
       expect(correctResult.grammarScore, equals(100));
     });
 

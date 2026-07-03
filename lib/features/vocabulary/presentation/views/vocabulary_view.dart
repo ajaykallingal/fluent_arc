@@ -14,7 +14,8 @@ class VocabularyView extends ConsumerStatefulWidget {
   ConsumerState<VocabularyView> createState() => _VocabularyViewState();
 }
 
-class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTickerProviderStateMixin {
+class _VocabularyViewState extends ConsumerState<VocabularyView>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _topicController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -36,7 +37,9 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
   void _generate() {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    ref.read(vocabularyNotifierProvider.notifier).generateSuggestions(
+    ref
+        .read(vocabularyNotifierProvider.notifier)
+        .generateSuggestions(
           _topicController.text,
           difficulty: _selectedDifficulty,
         );
@@ -57,7 +60,10 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
           unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
           tabs: const [
             Tab(text: 'Discover Words', icon: Icon(Icons.search_rounded)),
-            Tab(text: 'My Practice Vault', icon: Icon(Icons.folder_special_outlined)),
+            Tab(
+              text: 'My Practice Vault',
+              icon: Icon(Icons.folder_special_outlined),
+            ),
           ],
         ),
       ),
@@ -82,7 +88,9 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
         children: [
           Text(
             'Generate Contextual Vocabulary',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -119,15 +127,26 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
                       children: [
                         Text(
                           'Difficulty:',
-                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: SegmentedButton<String>(
                             segments: const [
-                              ButtonSegment(value: 'Beginner', label: Text('Beg')),
-                              ButtonSegment(value: 'Intermediate', label: Text('Int')),
-                              ButtonSegment(value: 'Advanced', label: Text('Adv')),
+                              ButtonSegment(
+                                value: 'Beginner',
+                                label: Text('Beg'),
+                              ),
+                              ButtonSegment(
+                                value: 'Intermediate',
+                                label: Text('Int'),
+                              ),
+                              ButtonSegment(
+                                value: 'Advanced',
+                                label: Text('Adv'),
+                              ),
                             ],
                             selected: {_selectedDifficulty},
                             onSelectionChanged: (newSelection) {
@@ -181,12 +200,16 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
               children: [
                 Text(
                   'Suggested Terms',
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '${state.suggestions.length} words found',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                    color: theme.textTheme.bodySmall?.color?.withValues(
+                      alpha: 0.6,
+                    ),
                   ),
                 ),
               ],
@@ -198,7 +221,9 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
               itemCount: state.suggestions.length,
               itemBuilder: (context, index) {
                 final suggestion = state.suggestions[index];
-                final isSaved = state.savedWords.any((w) => w.word.toLowerCase() == suggestion.word.toLowerCase());
+                final isSaved = state.savedWords.any(
+                  (w) => w.word.toLowerCase() == suggestion.word.toLowerCase(),
+                );
                 return _buildSuggestionCard(theme, suggestion, isSaved);
               },
             ),
@@ -208,7 +233,11 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
     );
   }
 
-  Widget _buildSuggestionCard(ThemeData theme, AiVocabularyWord suggestion, bool isSaved) {
+  Widget _buildSuggestionCard(
+    ThemeData theme,
+    AiVocabularyWord suggestion,
+    bool isSaved,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: Padding(
@@ -231,7 +260,10 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.secondary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -266,17 +298,25 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
             const SizedBox(width: 8),
             IconButton(
               icon: Icon(
-                isSaved ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
-                color: isSaved ? theme.colorScheme.tertiary : theme.colorScheme.primary,
+                isSaved
+                    ? Icons.check_circle_rounded
+                    : Icons.add_circle_outline_rounded,
+                color: isSaved
+                    ? theme.colorScheme.tertiary
+                    : theme.colorScheme.primary,
                 size: 28,
               ),
               onPressed: isSaved
                   ? null
                   : () {
-                      ref.read(vocabularyNotifierProvider.notifier).saveWord(suggestion);
+                      ref
+                          .read(vocabularyNotifierProvider.notifier)
+                          .saveWord(suggestion);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Saved "${suggestion.word}" to practice vault.'),
+                          content: Text(
+                            'Saved "${suggestion.word}" to practice vault.',
+                          ),
                           duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -297,7 +337,8 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
     if (state.savedWords.isEmpty) {
       return const EmptyView(
         title: 'Empty Vocabulary Vault',
-        message: 'No terms saved yet. Head over to the Discover tab to add terms by topic!',
+        message:
+            'No terms saved yet. Head over to the Discover tab to add terms by topic!',
         icon: Icons.style_rounded,
       );
     }
@@ -329,9 +370,14 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.secondary.withOpacity(0.1),
+                              color: theme.colorScheme.secondary.withOpacity(
+                                0.1,
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -362,9 +408,14 @@ class _VocabularyViewState extends ConsumerState<VocabularyView> with SingleTick
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    color: theme.colorScheme.error,
+                  ),
                   onPressed: () {
-                    ref.read(vocabularyNotifierProvider.notifier).deleteWord(vocab.word);
+                    ref
+                        .read(vocabularyNotifierProvider.notifier)
+                        .deleteWord(vocab.word);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Removed "${vocab.word}" from vault.'),

@@ -49,7 +49,10 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
     final chatState = ref.watch(conversationNotifierProvider);
 
     // Auto-scroll on new message received
-    ref.listen<ConversationState>(conversationNotifierProvider, (previous, next) {
+    ref.listen<ConversationState>(conversationNotifierProvider, (
+      previous,
+      next,
+    ) {
       if (previous?.messages.length != next.messages.length) {
         Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
       }
@@ -67,7 +70,9 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Clear Chat History?'),
-                  content: const Text('This will delete all past tutor messages in this session.'),
+                  content: const Text(
+                    'This will delete all past tutor messages in this session.',
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx),
@@ -75,7 +80,9 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
                     ),
                     TextButton(
                       onPressed: () {
-                        ref.read(conversationNotifierProvider.notifier).clearChat();
+                        ref
+                            .read(conversationNotifierProvider.notifier)
+                            .clearChat();
                         Navigator.pop(ctx);
                       },
                       child: Text(
@@ -99,13 +106,18 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
                 ? const LoadingView(message: 'Starting conversation...')
                 : ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    itemCount: chatState.messages.length + (chatState.isTyping ? 1 : 0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    itemCount:
+                        chatState.messages.length +
+                        (chatState.isTyping ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == chatState.messages.length) {
                         return _buildTypingIndicator(theme);
                       }
-                      
+
                       final message = chatState.messages[index];
                       return _buildMessageBubble(theme, message);
                     },
@@ -119,12 +131,18 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
+                  Icon(
+                    Icons.error_outline,
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       chatState.errorMessage!,
-                      style: TextStyle(color: theme.colorScheme.onErrorContainer, fontSize: 13),
+                      style: TextStyle(
+                        color: theme.colorScheme.onErrorContainer,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ],
@@ -140,9 +158,15 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
 
   Widget _buildMessageBubble(ThemeData theme, ChatMessage message) {
     final isUser = message.sender == MessageSender.user;
-    final alignment = isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final bubbleColor = isUser ? theme.colorScheme.primary : theme.colorScheme.surfaceVariant;
-    final textColor = isUser ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant;
+    final alignment = isUser
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start;
+    final bubbleColor = isUser
+        ? theme.colorScheme.primary
+        : theme.colorScheme.surfaceContainerHighest;
+    final textColor = isUser
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurfaceVariant;
     final borderRadius = isUser
         ? const BorderRadius.only(
             topLeft: Radius.circular(16),
@@ -206,7 +230,7 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant,
+              color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -221,13 +245,18 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
                   height: 14,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
+                    valueColor: AlwaysStoppedAnimation(
+                      theme.colorScheme.primary,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Tutor is typing...',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontSize: 14),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -242,7 +271,9 @@ class _ConversationViewState extends ConsumerState<ConversationView> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(top: BorderSide(color: theme.dividerColor.withOpacity(0.1))),
+        border: Border(
+          top: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
+        ),
       ),
       child: Row(
         children: [

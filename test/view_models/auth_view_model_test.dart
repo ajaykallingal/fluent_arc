@@ -14,13 +14,15 @@ void main() {
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     // Default mock behavior
-    when(() => mockAuthRepository.authStateChanges).thenAnswer((_) => Stream.value(null));
-    when(() => mockAuthRepository.getCurrentUser()).thenAnswer((_) => Future.value(null));
+    when(
+      () => mockAuthRepository.authStateChanges,
+    ).thenAnswer((_) => Stream.value(null));
+    when(
+      () => mockAuthRepository.getCurrentUser(),
+    ).thenAnswer((_) => Future.value(null));
 
     container = ProviderContainer(
-      overrides: [
-        authRepositoryProvider.overrideWithValue(mockAuthRepository),
-      ],
+      overrides: [authRepositoryProvider.overrideWithValue(mockAuthRepository)],
     );
   });
 
@@ -41,29 +43,46 @@ void main() {
       expect(state.status, equals(AuthStatus.unauthenticated));
     });
 
-    test('initial state is authenticated if a user is already logged in', () async {
-      const user = UserProfile(uid: '123', email: 'test@example.com', displayName: 'Test');
-      when(() => mockAuthRepository.getCurrentUser()).thenAnswer((_) => Future.value(user));
+    test(
+      'initial state is authenticated if a user is already logged in',
+      () async {
+        const user = UserProfile(
+          uid: '123',
+          email: 'test@example.com',
+          displayName: 'Test',
+        );
+        when(
+          () => mockAuthRepository.getCurrentUser(),
+        ).thenAnswer((_) => Future.value(user));
 
-      // Read to trigger build()
-      final initialState = container.read(authNotifierProvider);
-      expect(initialState.status, equals(AuthStatus.loading));
+        // Read to trigger build()
+        final initialState = container.read(authNotifierProvider);
+        expect(initialState.status, equals(AuthStatus.loading));
 
-      // Wait for async init to complete
-      await Future.delayed(const Duration(milliseconds: 10));
+        // Wait for async init to complete
+        await Future.delayed(const Duration(milliseconds: 10));
 
-      final state = container.read(authNotifierProvider);
-      expect(state.status, equals(AuthStatus.authenticated));
-      expect(state.user?.uid, equals('123'));
-    });
+        final state = container.read(authNotifierProvider);
+        expect(state.status, equals(AuthStatus.authenticated));
+        expect(state.user?.uid, equals('123'));
+      },
+    );
 
     test('login success sets status to authenticated', () async {
-      const user = UserProfile(uid: '123', email: 'test@example.com', displayName: 'Test');
-      when(() => mockAuthRepository.signInWithEmailPassword('test@example.com', 'password123'))
-          .thenAnswer((_) => Future.value(user));
+      const user = UserProfile(
+        uid: '123',
+        email: 'test@example.com',
+        displayName: 'Test',
+      );
+      when(
+        () => mockAuthRepository.signInWithEmailPassword(
+          'test@example.com',
+          'password123',
+        ),
+      ).thenAnswer((_) => Future.value(user));
 
       final notifier = container.read(authNotifierProvider.notifier);
-      
+
       // Let initial load finish
       await Future.delayed(const Duration(milliseconds: 10));
 
@@ -75,11 +94,15 @@ void main() {
     });
 
     test('login failure sets status to error with message', () async {
-      when(() => mockAuthRepository.signInWithEmailPassword('test@example.com', 'bad_pass'))
-          .thenThrow(Exception('Invalid credentials'));
+      when(
+        () => mockAuthRepository.signInWithEmailPassword(
+          'test@example.com',
+          'bad_pass',
+        ),
+      ).thenThrow(Exception('Invalid credentials'));
 
       final notifier = container.read(authNotifierProvider.notifier);
-      
+
       // Let initial load finish
       await Future.delayed(const Duration(milliseconds: 10));
 
@@ -91,10 +114,12 @@ void main() {
     });
 
     test('logout sets status to unauthenticated', () async {
-      when(() => mockAuthRepository.signOut()).thenAnswer((_) => Future.value());
+      when(
+        () => mockAuthRepository.signOut(),
+      ).thenAnswer((_) => Future.value());
 
       final notifier = container.read(authNotifierProvider.notifier);
-      
+
       // Let initial load finish
       await Future.delayed(const Duration(milliseconds: 10));
 

@@ -26,9 +26,7 @@ class DashboardView extends ConsumerWidget {
 
     final user = authState.user;
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(

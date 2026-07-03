@@ -7,6 +7,7 @@ import 'package:fluent_arc/features/grammar/presentation/view_models/grammar_vie
 import 'package:fluent_arc/core/services/ai/ai_provider.dart';
 
 class MockGrammarRepository extends Mock implements GrammarRepository {}
+
 class MockAiProvider extends Mock implements AiProvider {}
 
 void main() {
@@ -43,8 +44,9 @@ void main() {
         score: 80,
       );
 
-      when(() => mockGrammarRepository.checkSentence('He go there yesterday.'))
-          .thenAnswer((_) => Future.value(mockReport));
+      when(
+        () => mockGrammarRepository.checkSentence('He go there yesterday.'),
+      ).thenAnswer((_) => Future.value(mockReport));
 
       final notifier = container.read(grammarNotifierProvider.notifier);
       final future = notifier.checkGrammar('He go there yesterday.');
@@ -56,13 +58,17 @@ void main() {
 
       final finalState = container.read(grammarNotifierProvider);
       expect(finalState.isLoading, isFalse);
-      expect(finalState.report?.correctedText, equals('He went there yesterday.'));
+      expect(
+        finalState.report?.correctedText,
+        equals('He went there yesterday.'),
+      );
       expect(finalState.report?.score, equals(80));
     });
 
     test('checkGrammar failure sets error message', () async {
-      when(() => mockGrammarRepository.checkSentence('bad text'))
-          .thenThrow(Exception('Timeout error'));
+      when(
+        () => mockGrammarRepository.checkSentence('bad text'),
+      ).thenThrow(Exception('Timeout error'));
 
       final notifier = container.read(grammarNotifierProvider.notifier);
       await notifier.checkGrammar('bad text');
@@ -79,8 +85,9 @@ void main() {
         explanation: 'Good',
         score: 100,
       );
-      when(() => mockGrammarRepository.checkSentence('ok'))
-          .thenAnswer((_) => Future.value(mockReport));
+      when(
+        () => mockGrammarRepository.checkSentence('ok'),
+      ).thenAnswer((_) => Future.value(mockReport));
 
       final notifier = container.read(grammarNotifierProvider.notifier);
       await notifier.checkGrammar('ok');
