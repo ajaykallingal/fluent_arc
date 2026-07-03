@@ -2,7 +2,8 @@ import 'dart:async';
 import '../../domain/services/speech_to_text_provider.dart';
 
 class MockSpeechToTextProvider implements SpeechToTextProvider {
-  final StreamController<bool> _listeningController = StreamController<bool>.broadcast();
+  final StreamController<bool> _listeningController =
+      StreamController<bool>.broadcast();
   String _simulatedTranscript = '';
 
   void setSimulatedTranscript(String transcript) {

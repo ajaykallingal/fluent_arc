@@ -57,6 +57,7 @@ class DashboardViewModel extends Notifier<DashboardStats> {
   }
 }
 
-final dashboardViewModelProvider = NotifierProvider<DashboardViewModel, DashboardStats>(() {
-  return DashboardViewModel();
-});
+final dashboardViewModelProvider =
+    NotifierProvider<DashboardViewModel, DashboardStats>(() {
+      return DashboardViewModel();
+    });

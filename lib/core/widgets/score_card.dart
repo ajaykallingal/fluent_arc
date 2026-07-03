@@ -17,12 +17,13 @@ class ScoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scoreColor = customColor ??
+    final scoreColor =
+        customColor ??
         (score >= 80
             ? theme.colorScheme.tertiary
             : score >= 50
-                ? theme.colorScheme.secondary
-                : theme.colorScheme.error);
+            ? theme.colorScheme.secondary
+            : theme.colorScheme.error);
 
     return Card(
       child: Padding(

@@ -12,19 +12,19 @@ class SupabaseProgressRepository implements ProgressRepository {
   SupabaseProgressRepository({
     SupabaseClient? supabaseClient,
     bool isBackendEnabled = true,
-  })  : _supabaseClient = supabaseClient,
-        _isBackendEnabled = isBackendEnabled;
+  }) : _supabaseClient = supabaseClient,
+       _isBackendEnabled = isBackendEnabled;
 
   @override
   Future<UserProgress> getUserProgress(String userId) async {
     if (_isBackendEnabled && _supabaseClient != null) {
       try {
-        final response = await _supabaseClient!
+        final response = await _supabaseClient
             .from('user_progress')
             .select()
             .eq('user_id', userId)
             .maybeSingle();
-            
+
         if (response != null) {
           return UserProgress.fromJson(response);
         }
@@ -42,9 +42,7 @@ class SupabaseProgressRepository implements ProgressRepository {
       try {
         final data = progress.toJson();
         data['user_id'] = progress.uid; // Mapping key
-        await _supabaseClient!
-            .from('user_progress')
-            .upsert(data);
+        await _supabaseClient.from('user_progress').upsert(data);
       } catch (_) {
         // Handled via local cache
       }

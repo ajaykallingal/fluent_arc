@@ -7,10 +7,7 @@ class GeminiProvider implements AiProvider {
   late final GenerativeModel _model;
 
   GeminiProvider({required String apiKey}) : _apiKey = apiKey {
-    _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: _apiKey,
-    );
+    _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: _apiKey);
   }
 
   String _cleanJsonOutput(String responseText) {
@@ -33,15 +30,20 @@ class GeminiProvider implements AiProvider {
   }
 
   @override
-  Future<String> generateChatResponse(List<AiChatMessage> history, String newMessage) async {
+  Future<String> generateChatResponse(
+    List<AiChatMessage> history,
+    String newMessage,
+  ) async {
     final chatContents = <Content>[];
-    
+
     // Add system context first
-    chatContents.add(Content.text(
-      'System: You are FluentArc, a friendly, encouraging, and professional AI English Tutor. '
-      'Your task is to engage in natural conversation with the student, correct any blatant grammar mistakes '
-      'they make within your conversation gently, and prompt them to keep talking. Keep responses relatively short.'
-    ));
+    chatContents.add(
+      Content.text(
+        'System: You are FluentArc, a friendly, encouraging, and professional AI English Tutor. '
+        'Your task is to engage in natural conversation with the student, correct any blatant grammar mistakes '
+        'they make within your conversation gently, and prompt them to keep talking. Keep responses relatively short.',
+      ),
+    );
 
     for (final msg in history) {
       if (msg.role == 'user') {
@@ -50,7 +52,7 @@ class GeminiProvider implements AiProvider {
         chatContents.add(Content.text('Tutor: ${msg.text}'));
       }
     }
-    
+
     chatContents.add(Content.text('Student: $newMessage'));
 
     final response = await _model.generateContent(chatContents);
@@ -59,7 +61,8 @@ class GeminiProvider implements AiProvider {
 
   @override
   Future<AiGrammarAnalysis> analyzeGrammar(String text) async {
-    final prompt = '''
+    final prompt =
+        '''
 Analyze the following sentence for grammar and syntax mistakes.
 Sentence: "$text"
 
@@ -76,7 +79,7 @@ Provide ONLY the raw JSON string. Do not include markdown code blocks.
 
     final response = await _model.generateContent([Content.text(prompt)]);
     final responseText = response.text ?? '';
-    
+
     try {
       final jsonString = _cleanJsonOutput(responseText);
       final Map<String, dynamic> data = jsonDecode(jsonString);
@@ -86,15 +89,20 @@ Provide ONLY the raw JSON string. Do not include markdown code blocks.
       return AiGrammarAnalysis(
         originalSentence: text,
         correctedSentence: text,
-        explanation: 'Sorry, I failed to structure the analysis: $e.\nRaw feedback: $responseText',
+        explanation:
+            'Sorry, I failed to structure the analysis: $e.\nRaw feedback: $responseText',
         grammarScore: 80,
       );
     }
   }
 
   @override
-  Future<List<AiVocabularyWord>> suggestVocabulary(String topic, {String difficulty = 'Intermediate'}) async {
-    final prompt = '''
+  Future<List<AiVocabularyWord>> suggestVocabulary(
+    String topic, {
+    String difficulty = 'Intermediate',
+  }) async {
+    final prompt =
+        '''
 Suggest exactly 3 vocabulary words at the "$difficulty" difficulty level related to the topic: "$topic".
 Each word must include a definition and a realistic example sentence.
 
@@ -117,7 +125,11 @@ Provide ONLY the raw JSON array string. Do not include markdown code blocks.
     try {
       final jsonString = _cleanJsonOutput(responseText);
       final List<dynamic> data = jsonDecode(jsonString);
-      return data.map((item) => AiVocabularyWord.fromJson(item as Map<String, dynamic>)).toList();
+      return data
+          .map(
+            (item) => AiVocabularyWord.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
     } catch (e) {
       // Fallback
       return [

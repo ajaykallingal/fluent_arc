@@ -8,7 +8,9 @@ import 'package:fluent_arc/features/auth/domain/models/user_profile.dart';
 import 'package:fluent_arc/features/auth/presentation/view_models/auth_view_model.dart';
 import 'package:fluent_arc/core/services/ai/ai_provider.dart';
 
-class MockConversationRepository extends Mock implements ConversationRepository {}
+class MockConversationRepository extends Mock
+    implements ConversationRepository {}
+
 class MockAiProvider extends Mock implements AiProvider {}
 
 class FakeAuthNotifier extends AuthNotifier {
@@ -28,7 +30,9 @@ void main() {
   late ProviderContainer container;
 
   setUpAll(() {
-    registerFallbackValue(ChatMessage.create(sender: MessageSender.user, text: ''));
+    registerFallbackValue(
+      ChatMessage.create(sender: MessageSender.user, text: ''),
+    );
     registerFallbackValue(AiChatMessage(role: 'user', text: ''));
   });
 
@@ -37,20 +41,32 @@ void main() {
     mockAiProvider = MockAiProvider();
 
     // Mock responses
-    when(() => mockConversationRepository.getMessages(any())).thenAnswer((_) => Future.value([]));
-    when(() => mockConversationRepository.saveMessage(any(), any())).thenAnswer((_) => Future.value());
+    when(
+      () => mockConversationRepository.getMessages(any()),
+    ).thenAnswer((_) => Future.value([]));
+    when(
+      () => mockConversationRepository.saveMessage(any(), any()),
+    ).thenAnswer((_) => Future.value());
 
     container = ProviderContainer(
       overrides: [
-        conversationRepositoryProvider.overrideWithValue(mockConversationRepository),
+        conversationRepositoryProvider.overrideWithValue(
+          mockConversationRepository,
+        ),
         aiProvider.overrideWithValue(mockAiProvider),
         // Overrides auth state to be pre-authenticated
-        authNotifierProvider.overrideWith(() => FakeAuthNotifier(
-          const AuthState(
-            status: AuthStatus.authenticated,
-            user: UserProfile(uid: 'user-123', email: 'test@example.com', displayName: 'Test User'),
+        authNotifierProvider.overrideWith(
+          () => FakeAuthNotifier(
+            const AuthState(
+              status: AuthStatus.authenticated,
+              user: UserProfile(
+                uid: 'user-123',
+                email: 'test@example.com',
+                displayName: 'Test User',
+              ),
+            ),
           ),
-        )),
+        ),
       ],
     );
   });
@@ -60,43 +76,57 @@ void main() {
   });
 
   group('ConversationNotifier Tests', () {
-    test('initial load with empty history saves and returns a welcome message', () async {
-      final state = container.read(conversationNotifierProvider);
-      expect(state.messages, isEmpty);
+    test(
+      'initial load with empty history saves and returns a welcome message',
+      () async {
+        final state = container.read(conversationNotifierProvider);
+        expect(state.messages, isEmpty);
 
-      // Wait for initial load microtask
-      await Future.delayed(const Duration(milliseconds: 10));
+        // Wait for initial load microtask
+        await Future.delayed(const Duration(milliseconds: 10));
 
-      final updatedState = container.read(conversationNotifierProvider);
-      expect(updatedState.messages.length, equals(1));
-      expect(updatedState.messages.first.sender, equals(MessageSender.ai));
-      expect(updatedState.messages.first.text, contains('AI English tutor'));
-      
-      verify(() => mockConversationRepository.saveMessage('user-123', any())).called(1);
-    });
+        final updatedState = container.read(conversationNotifierProvider);
+        expect(updatedState.messages.length, equals(1));
+        expect(updatedState.messages.first.sender, equals(MessageSender.ai));
+        expect(updatedState.messages.first.text, contains('AI English tutor'));
 
-    test('sendMessage triggers AI tutor response and updates state list', () async {
-      when(() => mockAiProvider.generateChatResponse(any(), any()))
-          .thenAnswer((_) => Future.value('I am doing great!'));
+        verify(
+          () => mockConversationRepository.saveMessage('user-123', any()),
+        ).called(1);
+      },
+    );
 
-      // 1. Trigger initialization by reading the state first
-      final initialState = container.read(conversationNotifierProvider);
-      expect(initialState.messages, isEmpty);
+    test(
+      'sendMessage triggers AI tutor response and updates state list',
+      () async {
+        when(
+          () => mockAiProvider.generateChatResponse(any(), any()),
+        ).thenAnswer((_) => Future.value('I am doing great!'));
 
-      // 2. Wait for initial welcome message load to complete
-      await Future.delayed(const Duration(milliseconds: 10));
+        // 1. Trigger initialization by reading the state first
+        final initialState = container.read(conversationNotifierProvider);
+        expect(initialState.messages, isEmpty);
 
-      final notifier = container.read(conversationNotifierProvider.notifier);
-      await notifier.sendMessage('Hello, how are you?');
+        // 2. Wait for initial welcome message load to complete
+        await Future.delayed(const Duration(milliseconds: 10));
 
-      final finalState = container.read(conversationNotifierProvider);
-      expect(finalState.errorMessage, isNull);
-      expect(finalState.messages.length, equals(3)); // 1 welcome + 1 user + 1 AI
-      expect(finalState.messages[1].text, equals('Hello, how are you?'));
-      expect(finalState.messages[2].text, equals('I am doing great!'));
-      expect(finalState.isTyping, isFalse);
+        final notifier = container.read(conversationNotifierProvider.notifier);
+        await notifier.sendMessage('Hello, how are you?');
 
-      verify(() => mockConversationRepository.saveMessage('user-123', any())).called(3);
-    });
+        final finalState = container.read(conversationNotifierProvider);
+        expect(finalState.errorMessage, isNull);
+        expect(
+          finalState.messages.length,
+          equals(3),
+        ); // 1 welcome + 1 user + 1 AI
+        expect(finalState.messages[1].text, equals('Hello, how are you?'));
+        expect(finalState.messages[2].text, equals('I am doing great!'));
+        expect(finalState.isTyping, isFalse);
+
+        verify(
+          () => mockConversationRepository.saveMessage('user-123', any()),
+        ).called(3);
+      },
+    );
   });
 }

@@ -1,0 +1,63 @@
+name: Verify Code Quality
+
+# Trigger the workflow on:
+# 1. Pushes to develop or main branches
+# 2. Pull requests targeting develop or main
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  # Define a job named "verify" that runs our static analysis and tests
+  verify:
+    name: Lint, Format, and Test
+    # Use the latest Ubuntu runner hosted by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code onto the runner VM
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Java on the runner (needed for Gradle/Android environments)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu' # A standard, stable JDK distribution
+          java-version: '17'
+
+      # Step 3: Install and set up the Flutter SDK on the runner
+      - name: Set up Flutter
+        # This is a community-standard action to download and cache Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' # Use the latest stable Flutter release
+          cache: true       # Enable automatic caching of the Flutter SDK to speed up builds
+
+      # Step 4: Download the Dart/Flutter dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      # Step 5: Create dummy .env file to satisfy the pubspec.yaml assets check
+      # Since .env is ignored in Git but declared as a Flutter asset, we create a dummy file from the example template.
+      - name: Create Mock .env File
+        run: cp .env.example .env
+
+      # Step 6: Verify that the code formatting matches Dart standards
+      - name: Check Code Formatting
+        # If any files are unformatted, this command exits with code 1 and stops the pipeline
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Step 6: Perform static analysis to catch errors or lint violations
+      - name: Static Code Analysis (Linter)
+        run: flutter analyze
+
+      # Step 7: Run all tests in the test/ directory
+      - name: Run Unit and Widget Tests
+        run: flutter test

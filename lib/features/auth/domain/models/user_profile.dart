@@ -11,8 +11,6 @@ class UserProfile {
     this.photoUrl,
   });
 
-
-
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,

@@ -7,9 +7,7 @@ void main() {
   testWidgets('App startup smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
-      const ProviderScope(
-        child: FluentArcApp(isBackendInitialized: false),
-      ),
+      const ProviderScope(child: FluentArcApp(isBackendInitialized: false)),
     );
 
     // Let the GoRouter route and pages load

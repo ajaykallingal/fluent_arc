@@ -1,0 +1,68 @@
+# Codemagic CI/CD configuration file
+# For details, see: https://docs.codemagic.io/yaml/yaml-integration/
+
+workflows:
+  # The unique ID of this workflow. You can run it via the Codemagic CLI or API using this ID.
+  testing-and-analysis:
+    name: Flutter Testing & Quality Assurance
+    
+    # max_build_duration defines the timeout in minutes. If a build hangs, it will be killed after this time.
+    max_build_duration: 20
+    
+    # instance_type defines what hardware runs this build. 
+    # For testing, formatting, and linting, we use "linux" (Linux VM) because it starts fast and is cheaper.
+    # We do NOT need macOS here because we aren't building an iOS bundle (.ipa) yet.
+    instance_type: linux
+    
+    # The environment configuration determines the software versions pre-installed on the runner.
+    environment:
+      # Use the 'stable' channel of Flutter. Codemagic will auto-install the latest stable Flutter SDK.
+      flutter: stable
+      # Use Java 17, which is the standard for modern Android/Gradle builds if needed.
+      java: 17
+
+    # Triggering controls when this workflow runs automatically.
+    triggering:
+      events:
+        # Run whenever new commits are pushed
+        - push
+        # Run whenever a pull request is opened or updated
+        - pull_request
+      branch_patterns:
+        # Run on changes to the main and develop branches
+        - pattern: 'main'
+          include: true
+        - pattern: 'develop'
+          include: true
+        # Run on any feature branches starting with feature/
+        - pattern: 'feature/*'
+          include: true
+
+    # The scripts section contains the step-by-step commands the runner executes.
+    # If any step returns a non-zero exit code (indicating failure), the build stops and fails.
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter pub get
+
+      - name: Create mock .env file
+        script: |
+          cp .env.example .env
+
+      - name: Check code formatting
+        script: |
+          # "dart format" checks if your code formatting complies with Dart conventions.
+          # "--output=none" means it won't rewrite your files (we are only checking).
+          # "--set-exit-if-changed" makes the command fail (exit code 1) if any file needs formatting.
+          dart format --output=none --set-exit-if-changed .
+
+      - name: Static code analysis (Linter)
+        script: |
+          # Runs the analyzer against your project using the rules in analysis_options.yaml.
+          # If there are any compiler warnings/errors or lint violations, the build will fail.
+          flutter analyze
+
+      - name: Run unit and widget tests
+        script: |
+          # Runs all tests in the test/ directory and reports failures.
+          flutter test

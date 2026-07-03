@@ -32,11 +32,13 @@ void main() {
         'response': 'This is a local response from Gemma.',
       });
 
-      when(() => mockClient.post(
-            any(),
-            headers: any(named: 'headers'),
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(mockResponse, 200));
+      when(
+        () => mockClient.post(
+          any(),
+          headers: any(named: 'headers'),
+          body: any(named: 'body'),
+        ),
+      ).thenAnswer((_) async => http.Response(mockResponse, 200));
 
       final response = await ollamaProvider.generateText('Hello local Gemma');
       expect(response, equals('This is a local response from Gemma.'));
@@ -44,21 +46,20 @@ void main() {
 
     test('generateChatResponse returns content from message', () async {
       final mockResponse = jsonEncode({
-        'message': {
-          'content': 'I am your local AI tutor.',
-        },
+        'message': {'content': 'I am your local AI tutor.'},
       });
 
-      when(() => mockClient.post(
-            any(),
-            headers: any(named: 'headers'),
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(mockResponse, 200));
+      when(
+        () => mockClient.post(
+          any(),
+          headers: any(named: 'headers'),
+          body: any(named: 'body'),
+        ),
+      ).thenAnswer((_) async => http.Response(mockResponse, 200));
 
-      final response = await ollamaProvider.generateChatResponse(
-        [AiChatMessage(role: 'user', text: 'Hello')],
-        'How are you?',
-      );
+      final response = await ollamaProvider.generateChatResponse([
+        AiChatMessage(role: 'user', text: 'Hello'),
+      ], 'How are you?');
       expect(response, equals('I am your local AI tutor.'));
     });
 
@@ -72,11 +73,13 @@ void main() {
         }),
       });
 
-      when(() => mockClient.post(
-            any(),
-            headers: any(named: 'headers'),
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(mockResponse, 200));
+      when(
+        () => mockClient.post(
+          any(),
+          headers: any(named: 'headers'),
+          body: any(named: 'body'),
+        ),
+      ).thenAnswer((_) async => http.Response(mockResponse, 200));
 
       final result = await ollamaProvider.analyzeGrammar('I is coding.');
       expect(result.correctedSentence, equals('I am coding.'));
@@ -91,15 +94,17 @@ void main() {
             'definition': 'Relating to a particular area.',
             'example': 'This runs local.',
             'difficulty': 'Beginner',
-          }
+          },
         ]),
       });
 
-      when(() => mockClient.post(
-            any(),
-            headers: any(named: 'headers'),
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(mockResponse, 200));
+      when(
+        () => mockClient.post(
+          any(),
+          headers: any(named: 'headers'),
+          body: any(named: 'body'),
+        ),
+      ).thenAnswer((_) async => http.Response(mockResponse, 200));
 
       final words = await ollamaProvider.suggestVocabulary('tech');
       expect(words.length, equals(1));

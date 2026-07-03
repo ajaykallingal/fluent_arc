@@ -6,7 +6,8 @@ import '../../domain/repositories/vocabulary_repository.dart';
 class SqliteVocabularyRepository implements VocabularyRepository {
   final DatabaseHelper _dbHelper;
 
-  SqliteVocabularyRepository({required DatabaseHelper dbHelper}) : _dbHelper = dbHelper;
+  SqliteVocabularyRepository({required DatabaseHelper dbHelper})
+    : _dbHelper = dbHelper;
 
   @override
   Future<List<VocabularyWord>> getSavedWords() async {
@@ -37,11 +38,7 @@ class SqliteVocabularyRepository implements VocabularyRepository {
   Future<void> deleteWord(String word) async {
     try {
       final db = await _dbHelper.database;
-      await db.delete(
-        'vocabulary',
-        where: 'word = ?',
-        whereArgs: [word],
-      );
+      await db.delete('vocabulary', where: 'word = ?', whereArgs: [word]);
     } catch (_) {
       // Handle silently
     }
